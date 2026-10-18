@@ -19,6 +19,7 @@ import { BrandingTab } from '../components/admin/BrandingTab';
 import { MenuEditorTab } from '../components/admin/MenuEditorTab';
 import { ThemeTab } from '../components/admin/ThemeTab';
 import { FavoritesTab } from '../components/admin/FavoritesTab';
+import { FeaturesTab } from '../components/admin/features/FeaturesTab';
 import { SettingsTab } from '../components/admin/SettingsTab';
 import { SettingsTreeSidebar } from '../components/admin/SettingsTreeSidebar';
 import { SettingsMobileTabs } from '../components/admin/SettingsMobileTabs';
@@ -36,7 +37,7 @@ export default function AdminSettings() {
 
   // State: `?section=<id>` открывает нужный раздел сразу (ссылки из других разделов админки).
   const [activeSection, setActiveSection] = useState(
-    () => findSettingsSection(searchParams.get('section')) ?? 'branding',
+    () => findSettingsSection(searchParams.get('section')) ?? 'features',
   );
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -197,6 +198,8 @@ export default function AdminSettings() {
     }
 
     switch (activeSection) {
+      case 'features':
+        return <FeaturesTab onOpenSection={setActiveSection} />;
       case 'analytics':
         return <AnalyticsTab />;
       case 'branding':
@@ -225,8 +228,8 @@ export default function AdminSettings() {
             />
           );
         }
-        // Unknown section — fallback to branding
-        setActiveSection('branding');
+        // Unknown section — fallback to the start section
+        setActiveSection('features');
         return null;
     }
   };

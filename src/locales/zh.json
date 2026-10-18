@@ -2418,7 +2418,8 @@
       "botStartVideoRemove": "删除",
       "botStartVideoActive": "已设置视频",
       "botStartVideoNone": "未设置视频 — 菜单使用 logo 图片",
-      "botStartVideoError": "视频上传失败"
+      "botStartVideoError": "视频上传失败",
+      "features": "功能"
     },
     "graceAccess": {
       "title": "宽限访问",
@@ -6382,6 +6383,161 @@
         "object": "编号 {{id}}",
         "attempts": "尝试次数：{{count}}",
         "response": "机器人响应 {{code}}"
+      }
+    },
+    "features": {
+      "intro": "在一处开启或关闭功能并控制其按钮。更改立即生效；详细参数请点“设置”。",
+      "search": "查找功能",
+      "empty": "未找到",
+      "configure": "设置",
+      "cabinetMode": {
+        "title": "机器人处于“Cabinet（MiniApp）”菜单模式",
+        "body": "此处的主菜单按钮开关不生效：该模式下菜单在“按钮”页签中配置。",
+        "open": "打开“按钮”"
+      },
+      "groups": {
+        "sales": {
+          "title": "销售",
+          "description": "用户如何获得和续订订阅。"
+        },
+        "marketing": {
+          "title": "营销",
+          "description": "拉新与留存：推荐、合作伙伴、活动。"
+        },
+        "support": {
+          "title": "支持与语言",
+          "description": "联系客服和选择界面语言。"
+        },
+        "menu": {
+          "title": "机器人主菜单按钮",
+          "description": "在“完整菜单”模式下生效。相应功能仍可通过其他按钮访问。"
+        },
+        "login": {
+          "title": "个人中心登录",
+          "description": "除 Telegram 外登录网页个人中心的方式。"
+        }
+      },
+      "status": {
+        "on": "已开启",
+        "off": "已关闭",
+        "needsSetup": "未配置",
+        "unavailable": "不可用"
+      },
+      "toggles": {
+        "enabled": "功能已启用",
+        "botButton": "机器人中的按钮"
+      },
+      "options": {
+        "partnerSection": "个人中心的合作伙伴页面",
+        "withdrawals": "提取收益"
+      },
+      "hints": {
+        "unavailable": "无权限或数据加载失败",
+        "envLocked": "已在 .env 中设置，只能在那里修改",
+        "cabinetMode": "在“Cabinet”模式下不生效",
+        "dependsOnEnabled": "功能开启时生效"
+      },
+      "coupling": {
+        "bot": {
+          "withFeature": "机器人按钮随功能一起显示或隐藏",
+          "always": "机器人按钮始终显示",
+          "whenContent": "有内容时机器人按钮才出现"
+        },
+        "cabinet": {
+          "withFeature": "个人中心中随功能显示",
+          "always": "个人中心中始终显示",
+          "whenContent": "有进行中的内容时才在个人中心显示"
+        }
+      },
+      "requires": {
+        "smtp": "未配置邮件（SMTP），登录邮件无法发送。",
+        "oauthKeys": "未设置 Client ID 和 Client Secret，无法登录。"
+      },
+      "items": {
+        "trial": {
+          "title": "试用期",
+          "description": "新用户的免费访问。时长大于零且未对所有人禁用时开启。"
+        },
+        "simple_subscription": {
+          "title": "简易订阅",
+          "description": "按预设参数一步购买订阅。"
+        },
+        "traffic_topup": {
+          "title": "购买流量",
+          "description": "为有限额的订阅加购流量。"
+        },
+        "autopay": {
+          "title": "自动续费",
+          "description": "从余额自动续订订阅。"
+        },
+        "daily": {
+          "title": "按日订阅",
+          "description": "每天从余额扣费的订阅。"
+        },
+        "gifts": {
+          "title": "礼品订阅",
+          "description": "购买订阅作为礼物。机器人按钮也用于兑换收到的代码，因此即使关闭销售也可保留。"
+        },
+        "referral": {
+          "title": "推荐计划",
+          "description": "邀请用户获得奖励。"
+        },
+        "partners": {
+          "title": "合作伙伴计划",
+          "description": "个人中心的合作伙伴页面和收益提取。"
+        },
+        "contests": {
+          "title": "竞赛",
+          "description": "面向用户的抽奖和竞赛。"
+        },
+        "wheel": {
+          "title": "幸运转盘",
+          "description": "转动转盘赢取奖品。"
+        },
+        "promocode": {
+          "title": "优惠码",
+          "description": "优惠码始终有效；此处仅隐藏机器人主菜单中的输入按钮。"
+        },
+        "support": {
+          "title": "客服",
+          "description": "工单和联系客服。"
+        },
+        "language": {
+          "title": "语言选择",
+          "description": "用户可以切换界面语言。"
+        },
+        "balance": {
+          "title": "“余额”按钮",
+          "description": "在机器人主菜单中查看余额和充值。"
+        },
+        "info": {
+          "title": "“信息”按钮",
+          "description": "在机器人主菜单中查看规则、常见问题和法律文件。"
+        },
+        "activate": {
+          "title": "“激活”按钮",
+          "description": "按余额可支付的最长期限续订或开通订阅。"
+        },
+        "email_auth": {
+          "title": "邮箱登录",
+          "description": "使用邮箱和密码注册并登录个人中心。"
+        },
+        "oauth_google": {
+          "title": "Google 登录",
+          "description": "使用 Google 账号登录的按钮。"
+        },
+        "oauth_yandex": {
+          "title": "Yandex 登录",
+          "description": "使用 Yandex ID 登录的按钮。"
+        },
+        "oauth_vk": {
+          "title": "VK 登录",
+          "description": "使用 VK ID 登录的按钮。"
+        },
+        "oauth_discord": {
+          "title": "Discord 登录",
+          "description": "使用 Discord 账号登录的按钮。"
+        }
       }
     }
   },

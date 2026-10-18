@@ -3321,7 +3321,8 @@
       "botStartVideoRemove": "Remove",
       "botStartVideoActive": "Video is set",
       "botStartVideoNone": "No video — the menu uses the logo image",
-      "botStartVideoError": "Could not upload the video"
+      "botStartVideoError": "Could not upload the video",
+      "features": "Features"
     },
     "graceAccess": {
       "title": "Grace access",
@@ -6717,6 +6718,161 @@
         "object": "No. {{id}}",
         "attempts": "attempts: {{count}}",
         "response": "bot replied {{code}}"
+      }
+    },
+    "features": {
+      "intro": "Turn features on and off and control their buttons in one place. Changes apply immediately; detailed options are behind “Configure”.",
+      "search": "Find a feature",
+      "empty": "Nothing found",
+      "configure": "Configure",
+      "cabinetMode": {
+        "title": "The bot is in “Cabinet (MiniApp)” menu mode",
+        "body": "Main-menu button toggles have no effect here: in this mode the menu is built on the “Buttons” tab.",
+        "open": "Open “Buttons”"
+      },
+      "groups": {
+        "sales": {
+          "title": "Sales",
+          "description": "How users get and renew a subscription."
+        },
+        "marketing": {
+          "title": "Marketing",
+          "description": "Acquisition and retention: referrals, partners, promotions."
+        },
+        "support": {
+          "title": "Support & language",
+          "description": "Contacting support and choosing the interface language."
+        },
+        "menu": {
+          "title": "Bot main-menu buttons",
+          "description": "Apply in “Full menu” mode. The sections stay reachable through other buttons."
+        },
+        "login": {
+          "title": "Cabinet sign-in",
+          "description": "Ways to sign in to the web cabinet besides Telegram."
+        }
+      },
+      "status": {
+        "on": "On",
+        "off": "Off",
+        "needsSetup": "Not configured",
+        "unavailable": "Unavailable"
+      },
+      "toggles": {
+        "enabled": "Feature enabled",
+        "botButton": "Button in the bot"
+      },
+      "options": {
+        "partnerSection": "Partner section in the cabinet",
+        "withdrawals": "Withdrawal of earnings"
+      },
+      "hints": {
+        "unavailable": "No access or the data failed to load",
+        "envLocked": "Set in .env — can only be changed there",
+        "cabinetMode": "No effect in “Cabinet” mode",
+        "dependsOnEnabled": "Applies when the feature is on"
+      },
+      "coupling": {
+        "bot": {
+          "withFeature": "The bot button appears and hides together with the feature",
+          "always": "The bot button is always shown",
+          "whenContent": "The bot button appears when there is something to show"
+        },
+        "cabinet": {
+          "withFeature": "In the cabinet — together with the feature",
+          "always": "Always shown in the cabinet",
+          "whenContent": "Appears in the cabinet when there are active entries"
+        }
+      },
+      "requires": {
+        "smtp": "Email (SMTP) is not configured — sign-in emails will not be sent.",
+        "oauthKeys": "Client ID and Client Secret are not set — sign-in will not work."
+      },
+      "items": {
+        "trial": {
+          "title": "Trial",
+          "description": "Free access for new users. On when the duration is above zero and the trial is not disabled for everyone."
+        },
+        "simple_subscription": {
+          "title": "Simple subscription",
+          "description": "One-step subscription purchase with preset parameters."
+        },
+        "traffic_topup": {
+          "title": "Traffic top-up",
+          "description": "Buying extra traffic for a limited subscription."
+        },
+        "autopay": {
+          "title": "Autopay",
+          "description": "Automatic subscription renewal from the balance."
+        },
+        "daily": {
+          "title": "Daily subscriptions",
+          "description": "Subscriptions charged daily from the balance."
+        },
+        "gifts": {
+          "title": "Gift subscriptions",
+          "description": "Buying a subscription as a gift. The bot button also leads to redeeming a received code, so it can stay even with sales off."
+        },
+        "referral": {
+          "title": "Referral program",
+          "description": "Bonuses for invited users."
+        },
+        "partners": {
+          "title": "Partner program",
+          "description": "Partner section in the cabinet and withdrawal of earnings."
+        },
+        "contests": {
+          "title": "Contests",
+          "description": "Giveaways and contests for users."
+        },
+        "wheel": {
+          "title": "Fortune wheel",
+          "description": "Wheel spins with prizes."
+        },
+        "promocode": {
+          "title": "Promo codes",
+          "description": "Promo codes always work; this only hides the entry button in the bot main menu."
+        },
+        "support": {
+          "title": "Support",
+          "description": "Tickets and contacting support."
+        },
+        "language": {
+          "title": "Language selection",
+          "description": "Users can change the interface language."
+        },
+        "balance": {
+          "title": "“Balance” button",
+          "description": "Balance and top-up from the bot main menu."
+        },
+        "info": {
+          "title": "“Info” button",
+          "description": "Rules, FAQ and legal documents from the bot main menu."
+        },
+        "activate": {
+          "title": "“Activate” button",
+          "description": "Renews or creates a subscription for the longest period the balance covers."
+        },
+        "email_auth": {
+          "title": "Email sign-in",
+          "description": "Registration and sign-in to the cabinet with email and password."
+        },
+        "oauth_google": {
+          "title": "Sign in with Google",
+          "description": "Sign-in button for a Google account."
+        },
+        "oauth_yandex": {
+          "title": "Sign in with Yandex",
+          "description": "Sign-in button for Yandex ID."
+        },
+        "oauth_vk": {
+          "title": "Sign in with VK",
+          "description": "Sign-in button for VK ID."
+        },
+        "oauth_discord": {
+          "title": "Sign in with Discord",
+          "description": "Sign-in button for a Discord account."
+        }
       }
     }
   },
