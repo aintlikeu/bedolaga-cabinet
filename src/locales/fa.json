@@ -2320,7 +2320,15 @@
         "sys_cabinet": "کابین",
         "sys_other": "سایر تنظیمات",
         "sys_dpichecker": "DPI//CHECKER",
-        "payments_cashera": "Cashera"
+        "payments_cashera": "Cashera",
+        "payments_nalogo": "رسیدها (Moy Nalog)",
+        "payments_overpay": "Overpay",
+        "subs_daily": "اشتراک‌های روزانه",
+        "subs_grace": "دسترسی مهلت",
+        "users_auth": "ورود و ثبت‌نام",
+        "users_email": "ایمیل",
+        "users_contests": "مسابقه‌ها",
+        "sys_tracking": "آمار و پست‌بک"
       },
       "categories": {
         "CABINET": "کابین",
@@ -2592,7 +2600,12 @@
         "external": "مرورگر خارجی",
         "webapp": "مینی‌اپ تلگرام"
       },
-      "invalidUrl": "لطفاً برای تمام دکمه‌های سفارشی یک URL معتبر وارد کنید (http:// یا https://)"
+      "invalidUrl": "لطفاً برای تمام دکمه‌های سفارشی یک URL معتبر وارد کنید (http:// یا https://)",
+      "modeBanner": {
+        "title": "این ویرایشگر در حالت فعلی منو اثری ندارد",
+        "body": "ربات در حالت «منوی کامل» است. این ویرایشگر فقط در حالت «کابینت» منو را تغییر می‌دهد. در حالت «منوی کامل» دکمه‌ها با کلیدهای بخش «رابط کاربری ← عمومی» پنهان می‌شوند و حالت منو هم همان‌جا تغییر می‌کند.",
+        "openInterface": "باز کردن «رابط کاربری ← عمومی»"
+      }
     },
     "apps": {
       "title": "مدیریت برنامه‌ها",

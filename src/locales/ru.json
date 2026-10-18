@@ -3330,7 +3330,15 @@
         "sys_cabinet": "Кабинет",
         "sys_other": "Прочие настройки",
         "sys_dpichecker": "DPI//CHECKER",
-        "payments_cashera": "Cashera"
+        "payments_cashera": "Cashera",
+        "payments_nalogo": "Чеки «Мой налог»",
+        "payments_overpay": "Overpay",
+        "subs_daily": "Суточные подписки",
+        "subs_grace": "Grace-доступ",
+        "users_auth": "Вход и регистрация",
+        "users_email": "Почта",
+        "users_contests": "Конкурсы",
+        "sys_tracking": "Аналитика и постбэки"
       },
       "presets": {
         "standard": "Стандарт",
@@ -3786,7 +3794,8 @@
         "Debug": "Отладка",
         "telegramOidcEnabled": "OIDC включён",
         "telegramOidcClientId": "Client ID (ID бота)",
-        "telegramOidcClientSecret": "Client Secret"
+        "telegramOidcClientSecret": "Client Secret",
+        "Gift Button Visible": "Кнопка «Подарить подписку»"
       },
       "categories": {
         "CABINET": "Кабинет",
@@ -3846,7 +3855,34 @@
         "CHANNEL": "Канал",
         "TIMEZONE": "Часовой пояс",
         "REFERRAL": "Реферальная система",
-        "MODERATION": "Модерация"
+        "MODERATION": "Модерация",
+        "OVERPAY": "Overpay",
+        "GRACE_ACCESS": "Grace-доступ",
+        "APPLE": "Apple IAP",
+        "OAUTH": "Вход через OAuth",
+        "NALOGO": "Мой налог",
+        "YANDEX": "Офлайн-конверсии Яндекса",
+        "SMTP": "SMTP",
+        "MEDIA": "Медиафайлы",
+        "ABUSE": "Abuse API",
+        "BLACKLIST": "Чёрный список",
+        "EMAIL": "Письма",
+        "S2S": "S2S-постбэки",
+        "BAN": "Бан-система",
+        "TARIFF": "Смена тарифа",
+        "SUBSCRIPTION": "Подписка",
+        "REGISTRATION_ACCESS": "Доступ к регистрации",
+        "TEST": "Тестовый аккаунт",
+        "CART": "Корзина",
+        "CONTESTS": "Конкурсы",
+        "DISPOSABLE": "Одноразовые email",
+        "DAILY": "Суточные подписки",
+        "INCY": "Incy Cryptolink",
+        "SERVICE": "Сайт сервиса",
+        "SERVER": "Сервер",
+        "PRICE": "Округление цен",
+        "BOT": "Режим бота",
+        "PROXY": "Прокси"
       },
       "offlineConv": "Офлайн-конверсии",
       "apiKey": "API-ключ",
@@ -4102,7 +4138,12 @@
         "external": "Внешний браузер",
         "webapp": "Telegram miniapp"
       },
-      "invalidUrl": "Укажите корректный URL (http:// или https://) для всех пользовательских кнопок"
+      "invalidUrl": "Укажите корректный URL (http:// или https://) для всех пользовательских кнопок",
+      "modeBanner": {
+        "title": "Редактор не действует в текущем режиме меню",
+        "body": "Сейчас в боте режим «Полное меню». Этот редактор меняет меню только в режиме «Cabinet (МиниАпп)». В «Полном меню» кнопки скрываются переключателями в разделе «Интерфейс → Основные», там же меняется режим меню.",
+        "openInterface": "Открыть «Интерфейс → Основные»"
+      }
     },
     "apps": {
       "title": "Управление приложениями",

@@ -36,7 +36,7 @@ export function findSettingsSection(id: string | null): string | null {
   return known ? id : null;
 }
 
-// Hierarchical settings tree — all 61 backend category keys mapped into 7 groups
+// Hierarchical settings tree: backend category keys mapped into 7 groups (unmapped ones land in sys_other)
 export const SETTINGS_TREE: SettingsTreeConfig = {
   specialItems: [
     { id: 'favorites', iconType: 'star' },
@@ -51,6 +51,7 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
       icon: '💳',
       children: [
         { id: 'payments_general', categories: ['PAYMENT', 'PAYMENT_VERIFICATION'] },
+        { id: 'payments_nalogo', categories: ['NALOGO'] },
         { id: 'payments_stars', categories: ['TELEGRAM'] },
         { id: 'payments_yookassa', categories: ['YOOKASSA'] },
         { id: 'payments_cryptobot', categories: ['CRYPTOBOT'] },
@@ -77,20 +78,24 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
         { id: 'payments_paritypay', categories: ['PARITYPAY'] },
         { id: 'payments_donut', categories: ['DONUT'] },
         { id: 'payments_lava', categories: ['LAVA'] },
-        { id: 'payments_apple_iap', categories: ['APPLE_IAP'] },
+        { id: 'payments_overpay', categories: ['OVERPAY'] },
+        // Ключи APPLE_IAP_* бэкенд кладёт в категорию APPLE (по первому слову).
+        { id: 'payments_apple_iap', categories: ['APPLE_IAP', 'APPLE'] },
       ],
     },
     {
       id: 'subscriptions',
       icon: '📦',
       children: [
-        { id: 'subs_core', categories: ['SUBSCRIPTIONS_CORE'] },
+        { id: 'subs_core', categories: ['SUBSCRIPTIONS_CORE', 'TARIFF', 'SUBSCRIPTION', 'CART'] },
         { id: 'subs_trial', categories: ['TRIAL'] },
-        { id: 'subs_pricing', categories: ['SUBSCRIPTION_PRICES'] },
+        { id: 'subs_pricing', categories: ['SUBSCRIPTION_PRICES', 'PRICE'] },
         { id: 'subs_periods', categories: ['PERIODS'] },
         { id: 'subs_traffic', categories: ['TRAFFIC', 'TRAFFIC_PACKAGES'] },
         { id: 'subs_simple', categories: ['SIMPLE_SUBSCRIPTION'] },
         { id: 'subs_autopay', categories: ['AUTOPAY'] },
+        { id: 'subs_daily', categories: ['DAILY'] },
+        { id: 'subs_grace', categories: ['GRACE_ACCESS'] },
       ],
     },
     {
@@ -101,7 +106,7 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
           id: 'iface_general',
           categories: ['INTERFACE', 'INTERFACE_BRANDING', 'INTERFACE_SUBSCRIPTION'],
         },
-        { id: 'iface_connect', categories: ['CONNECT_BUTTON'] },
+        { id: 'iface_connect', categories: ['CONNECT_BUTTON', 'INCY'] },
         { id: 'iface_miniapp', categories: ['MINIAPP'] },
         { id: 'iface_happ', categories: ['HAPP'] },
         { id: 'iface_widget', categories: ['TELEGRAM_WIDGET'] },
@@ -109,18 +114,24 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
         { id: 'iface_skip', categories: ['SKIP'] },
         { id: 'iface_info', categories: ['INFO_PAGES'] },
         { id: 'iface_menu', categories: ['MENU'] },
-        { id: 'iface_additional', categories: ['ADDITIONAL'] },
+        { id: 'iface_additional', categories: ['ADDITIONAL', 'SERVICE', 'MEDIA'] },
       ],
     },
     {
       id: 'users',
       icon: '👥',
       children: [
+        { id: 'users_auth', categories: ['REGISTRATION_ACCESS', 'OAUTH', 'DISPOSABLE', 'TEST'] },
+        { id: 'users_email', categories: ['SMTP', 'EMAIL'] },
         { id: 'users_support', categories: ['SUPPORT'] },
         { id: 'users_referral', categories: ['REFERRAL'] },
         { id: 'users_channel', categories: ['CHANNEL'] },
         { id: 'users_localization', categories: ['LOCALIZATION', 'TIMEZONE'] },
-        { id: 'users_moderation', categories: ['MODERATION', 'BAN_NOTIFICATIONS'] },
+        { id: 'users_contests', categories: ['CONTESTS'] },
+        {
+          id: 'users_moderation',
+          categories: ['MODERATION', 'BAN_NOTIFICATIONS', 'BAN', 'BLACKLIST', 'ABUSE'],
+        },
       ],
     },
     {
@@ -146,11 +157,12 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
       id: 'system',
       icon: '⚙️',
       children: [
-        { id: 'sys_core', categories: ['CORE', 'DEBUG'] },
+        { id: 'sys_core', categories: ['CORE', 'DEBUG', 'BOT', 'SERVER', 'PROXY'] },
         { id: 'sys_remnawave', categories: ['REMNAWAVE'] },
         { id: 'sys_reachability', categories: ['BSCHEK'] },
         { id: 'sys_dpichecker', categories: ['DPICHECKER'] },
         { id: 'sys_webapi', categories: ['WEB_API', 'EXTERNAL_ADMIN'] },
+        { id: 'sys_tracking', categories: ['YANDEX', 'S2S'] },
         { id: 'sys_cabinet', categories: ['CABINET'] },
         { id: 'sys_webhook', categories: ['WEBHOOK'] },
         { id: 'sys_server', categories: ['SERVER_STATUS'] },

@@ -204,7 +204,7 @@ export default function AdminSettings() {
       case 'theme':
         return <ThemeTab />;
       case 'buttons':
-        return <MenuEditorTab />;
+        return <MenuEditorTab onOpenSection={setActiveSection} />;
       case 'favorites':
         return (
           <FavoritesTab

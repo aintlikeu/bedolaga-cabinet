@@ -42,3 +42,42 @@ describe('SETTINGS_TREE', () => {
     expect(new Set(all).size).toBe(all.length);
   });
 });
+
+describe('SETTINGS_TREE — категории, лежавшие в «Прочем»', () => {
+  // Эти категории вытекали в «Система → Прочее»: конкурсы, почта, вход через OAuth,
+  // а настройки Apple IAP при этом висели под пустым пунктом (бэкенд кладёт их в APPLE).
+  const FORMERLY_OTHER = [
+    'OVERPAY',
+    'GRACE_ACCESS',
+    'APPLE',
+    'OAUTH',
+    'NALOGO',
+    'YANDEX',
+    'SMTP',
+    'MEDIA',
+    'ABUSE',
+    'BLACKLIST',
+    'EMAIL',
+    'S2S',
+    'BAN',
+    'TARIFF',
+    'SUBSCRIPTION',
+    'REGISTRATION_ACCESS',
+    'TEST',
+    'CART',
+    'CONTESTS',
+    'DISPOSABLE',
+    'DAILY',
+    'INCY',
+    'SERVICE',
+    'SERVER',
+    'PRICE',
+    'BOT',
+    'PROXY',
+  ];
+
+  it('у каждой есть своё место в дереве', () => {
+    const mapped = getMappedCategoryKeys();
+    expect(FORMERLY_OTHER.filter((category) => !mapped.has(category))).toEqual([]);
+  });
+});
