@@ -40,6 +40,8 @@ export function findSettingsSection(id: string | null): string | null {
 export const SETTINGS_TREE: SettingsTreeConfig = {
   specialItems: [
     { id: 'favorites', iconType: 'star' },
+    // Сводка включения и видимости функций; открывается первой.
+    { id: 'features', icon: '🧩' },
     { id: 'branding', icon: '🎨' },
     { id: 'theme', icon: '🌈' },
     { id: 'analytics', icon: '📊' },
