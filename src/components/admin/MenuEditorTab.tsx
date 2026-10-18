@@ -36,6 +36,7 @@ import {
   BOT_LOCALES,
   STYLE_OPTIONS,
 } from '../../api/menuLayout';
+import { adminSettingsApi } from '../../api/adminSettings';
 import { Toggle } from './Toggle';
 import { useNotify } from '../../platform/hooks/useNotify';
 import { useNativeDialog } from '../../platform/hooks/useNativeDialog';
@@ -466,11 +467,26 @@ function InlineAddPanel({ rowId, usedBuiltinIds, onAddBuiltin, onAddCustom }: In
   );
 }
 
-export function MenuEditorTab() {
+interface MenuEditorTabProps {
+  /** Открыть раздел настроек по id из дерева (ссылка из баннера режима меню). */
+  onOpenSection?: (section: string) => void;
+}
+
+export function MenuEditorTab({ onOpenSection }: MenuEditorTabProps = {}) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const notify = useNotify();
   const { confirm: confirmDialog } = useNativeDialog();
+
+  // Бот читает эту раскладку только в режиме «Кабинет»: в «Полном меню» правки
+  // здесь ни на что не влияют, и без предупреждения это выглядит как поломка.
+  const { data: menuModeSetting } = useQuery({
+    queryKey: ['admin-settings', 'MAIN_MENU_MODE'],
+    queryFn: () => adminSettingsApi.getSetting('MAIN_MENU_MODE'),
+    staleTime: 60000,
+    retry: false,
+  });
+  const showModeBanner = !!menuModeSetting && menuModeSetting.current !== 'cabinet';
 
   // Fetch config
   const {
@@ -727,6 +743,22 @@ export function MenuEditorTab() {
 
   return (
     <div className="space-y-4">
+      {showModeBanner && (
+        <div className="rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm">
+          <p className="font-medium text-warning-400">{t('admin.menuEditor.modeBanner.title')}</p>
+          <p className="mt-1 text-dark-300">{t('admin.menuEditor.modeBanner.body')}</p>
+          {onOpenSection && (
+            <button
+              type="button"
+              onClick={() => onOpenSection('iface_general')}
+              className="mt-2 text-sm font-medium text-accent-400 transition-colors hover:text-accent-300"
+            >
+              {t('admin.menuEditor.modeBanner.openInterface')}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Drag hint */}
       <div className="flex items-center gap-2 text-sm text-dark-500">
         <GripIcon />

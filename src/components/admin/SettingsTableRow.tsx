@@ -108,8 +108,8 @@ export function SettingsTableRow({
             <code className="font-mono text-[11px] text-dark-500">{setting.key}</code>
           </div>
 
-          {/* Description for long values */}
-          {isLongValue && description && (
+          {/* Description: у переключателей и коротких полей это единственное объяснение настройки */}
+          {description && (
             <p className="mt-1 text-xs leading-relaxed text-dark-400">{description}</p>
           )}
         </div>

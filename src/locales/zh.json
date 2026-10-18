@@ -2381,7 +2381,15 @@
         "sys_cabinet": "用户中心",
         "sys_other": "其他设置",
         "sys_dpichecker": "DPI//CHECKER",
-        "payments_cashera": "Cashera"
+        "payments_cashera": "Cashera",
+        "payments_nalogo": "收据（Moy Nalog）",
+        "payments_overpay": "Overpay",
+        "subs_daily": "按日订阅",
+        "subs_grace": "宽限访问",
+        "users_auth": "登录与注册",
+        "users_email": "邮件",
+        "users_contests": "竞赛",
+        "sys_tracking": "统计与回传"
       },
       "categories": {
         "CABINET": "用户中心",
@@ -2653,7 +2661,12 @@
         "external": "外部浏览器",
         "webapp": "Telegram 小程序"
       },
-      "invalidUrl": "请为所有自定义按钮提供有效的URL（http:// 或 https://）"
+      "invalidUrl": "请为所有自定义按钮提供有效的URL（http:// 或 https://）",
+      "modeBanner": {
+        "title": "此编辑器在当前菜单模式下不生效",
+        "body": "机器人当前为“完整菜单”模式。此编辑器仅在“个人中心”模式下修改菜单。在“完整菜单”模式下，请在“界面 → 通用”中用开关隐藏按钮，菜单模式也在那里切换。",
+        "openInterface": "打开“界面 → 通用”"
+      }
     },
     "apps": {
       "title": "应用管理",

@@ -3284,7 +3284,15 @@
         "sys_cabinet": "Cabinet",
         "sys_other": "Other settings",
         "sys_dpichecker": "DPI//CHECKER",
-        "payments_cashera": "Cashera"
+        "payments_cashera": "Cashera",
+        "payments_nalogo": "Receipts (Moy Nalog)",
+        "payments_overpay": "Overpay",
+        "subs_daily": "Daily subscriptions",
+        "subs_grace": "Grace access",
+        "users_auth": "Sign-in & registration",
+        "users_email": "Email",
+        "users_contests": "Contests",
+        "sys_tracking": "Tracking & postbacks"
       },
       "categories": {
         "CABINET": "Cabinet",
@@ -3674,7 +3682,12 @@
         "external": "External browser",
         "webapp": "Telegram miniapp"
       },
-      "invalidUrl": "Please provide a valid URL (http:// or https://) for all custom buttons"
+      "invalidUrl": "Please provide a valid URL (http:// or https://) for all custom buttons",
+      "modeBanner": {
+        "title": "This editor has no effect in the current menu mode",
+        "body": "The bot is in “Full menu” mode. This editor changes the menu only in “Cabinet” mode. In “Full menu” mode, buttons are hidden with toggles in “Interface → General”, where the menu mode is switched too.",
+        "openInterface": "Open “Interface → General”"
+      }
     },
     "apps": {
       "title": "App Management",
