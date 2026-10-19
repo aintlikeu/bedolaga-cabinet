@@ -15,22 +15,14 @@ import { useNotify } from '../../../platform/hooks/useNotify';
 import { useNativeDialog } from '../../../platform/hooks/useNativeDialog';
 import { getApiErrorMessage } from '../../../utils/api-error';
 import { cn } from '../../../lib/utils';
-import { ArrowDownIcon, ArrowUpIcon, LockIcon } from '@/components/icons';
 import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton';
 import { useDebouncedValue } from '../reachability/useDebouncedValue';
-import { Toggle } from '../Toggle';
+import { OrderedToggleList, moveItem, sameOrderAndVisibility } from '../OrderedToggleList';
 
 // Без этих кнопок у пользователя пропадает главный путь — предупреждаем при скрытии.
 const CRITICAL_ITEMS: ReadonlySet<BotMenuItemId> = new Set(['connect', 'buy', 'subscription']);
 
 const SCENARIOS: BotMenuScenario[] = ['new', 'active', 'trial', 'expired'];
-
-function sameItems(a: readonly BotMenuItem[], b: readonly BotMenuItem[]): boolean {
-  return (
-    a.length === b.length &&
-    a.every((item, index) => item.id === b[index].id && item.visible === b[index].visible)
-  );
-}
 
 /** Редактор главного меню режима «Полное меню»: порядок, видимость и живой предпросмотр. */
 export function BotMenuEditor() {
@@ -49,11 +41,11 @@ export function BotMenuEditor() {
     if (!items) return;
     // Снимок до обновления: апдейтер setDraft выполнится позже присваивания ниже.
     const previousSaved = savedRef.current;
-    setDraft((current) => (sameItems(current, previousSaved) ? items : current));
+    setDraft((current) => (sameOrderAndVisibility(current, previousSaved) ? items : current));
     savedRef.current = items;
   }, [layoutQuery.data]);
 
-  const hasChanges = !sameItems(draft, savedRef.current);
+  const hasChanges = !sameOrderAndVisibility(draft, savedRef.current);
 
   const saveMutation = useMutation({
     mutationFn: (items: BotMenuItem[]) => botMenuApi.updateLayout(items),
@@ -69,16 +61,10 @@ export function BotMenuEditor() {
   });
 
   const move = useCallback((index: number, delta: -1 | 1) => {
-    setDraft((items) => {
-      const target = index + delta;
-      if (target < 0 || target >= items.length) return items;
-      const next = [...items];
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
+    setDraft((items) => moveItem(items, index, delta));
   }, []);
 
-  const toggleVisible = useCallback((id: BotMenuItemId) => {
+  const toggleVisible = useCallback((id: string) => {
     setDraft((items) =>
       items.map((item) => (item.id === id ? { ...item, visible: !item.visible } : item)),
     );
@@ -117,70 +103,29 @@ export function BotMenuEditor() {
       <div className="min-w-0 space-y-3">
         <p className="text-sm text-dark-400">{t('admin.botMenu.intro')}</p>
 
-        <ol className="space-y-2">
-          {draft.map((item, index) => {
-            const isLocked = locked.has(item.id);
-            const title = t(`admin.botMenu.items.${item.id}.title`);
-            const hint = t(`admin.botMenu.items.${item.id}.hint`);
-            const warnHidden = !item.visible && CRITICAL_ITEMS.has(item.id);
-            return (
-              <li
-                key={item.id}
-                className={cn(
-                  'flex items-center gap-2 rounded-xl border border-dark-700/50 bg-dark-800/50 px-2 py-1.5',
-                  !item.visible && 'opacity-60',
-                )}
-              >
-                <div className="flex shrink-0 flex-col">
-                  <button
-                    type="button"
-                    onClick={() => move(index, -1)}
-                    disabled={index === 0}
-                    aria-label={`${title}: ${t('admin.botMenu.moveUp')}`}
-                    className="rounded-md p-1 text-dark-400 transition-colors hover:bg-dark-700/50 hover:text-dark-200 disabled:cursor-default disabled:text-dark-700"
-                  >
-                    <ArrowUpIcon className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => move(index, 1)}
-                    disabled={index === draft.length - 1}
-                    aria-label={`${title}: ${t('admin.botMenu.moveDown')}`}
-                    className="rounded-md p-1 text-dark-400 transition-colors hover:bg-dark-700/50 hover:text-dark-200 disabled:cursor-default disabled:text-dark-700"
-                  >
-                    <ArrowDownIcon className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="flex flex-wrap items-center gap-1.5 text-[13px] font-medium text-dark-100">
-                    {title}
-                    {wide.has(item.id) && (
-                      <span className="rounded bg-dark-600 px-1.5 py-0.5 text-[10px] font-medium text-dark-300">
-                        {t('admin.botMenu.wide')}
-                      </span>
-                    )}
-                    {isLocked && <LockIcon className="h-3 w-3 text-warning-400" />}
-                  </p>
-                  {hint && <p className="text-[11px] text-dark-500">{hint}</p>}
-                  {isLocked && (
-                    <p className="text-[11px] text-dark-500">{t('admin.botMenu.locked')}</p>
-                  )}
-                  {warnHidden && (
-                    <p className="text-[11px] text-warning-400">
-                      {t(`admin.botMenu.criticalHidden.${item.id}`)}
-                    </p>
-                  )}
-                </div>
-                <Toggle
-                  checked={item.visible}
-                  onChange={() => toggleVisible(item.id)}
-                  disabled={isLocked || saveMutation.isPending}
-                  aria-label={`${title}: ${t('admin.botMenu.visible')}`}
-                />
-              </li>
-            );
-          })}
-        </ol>
+        <OrderedToggleList
+          items={draft.map((item) => ({
+            id: item.id,
+            title: t(`admin.botMenu.items.${item.id}.title`),
+            visible: item.visible,
+            hint: t(`admin.botMenu.items.${item.id}.hint`),
+            badge: wide.has(item.id) ? t('admin.botMenu.wide') : undefined,
+            locked: locked.has(item.id),
+            lockedNote: t('admin.botMenu.locked'),
+            warning:
+              !item.visible && CRITICAL_ITEMS.has(item.id)
+                ? t(`admin.botMenu.criticalHidden.${item.id}`)
+                : undefined,
+          }))}
+          onMove={move}
+          onToggle={toggleVisible}
+          disabled={saveMutation.isPending}
+          labels={{
+            moveUp: t('admin.botMenu.moveUp'),
+            moveDown: t('admin.botMenu.moveDown'),
+            visible: t('admin.botMenu.visible'),
+          }}
+        />
 
         <div className="flex flex-wrap items-center gap-3">
           {hasChanges && (

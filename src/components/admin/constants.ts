@@ -46,6 +46,7 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
     { id: 'theme', icon: '🌈' },
     { id: 'analytics', icon: '📊' },
     { id: 'buttons', icon: '📱' },
+    { id: 'navigation', icon: '🧭' },
   ],
   groups: [
     {
