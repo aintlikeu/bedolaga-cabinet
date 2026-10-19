@@ -140,17 +140,17 @@ export function SettingsTableRow({
             )}
           </div>
 
-          {/* Технический ключ — по кнопке: нужен для .env и поддержки, а не для чтения. */}
+          {/* Технический ключ виден целиком (по нему ищут в .env и документации), клик копирует. */}
           <button
             type="button"
             onClick={copyKey}
             title={setting.key}
             aria-label={t('admin.settings.copyKey', { key: setting.key })}
-            className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-dark-600 transition-colors hover:text-dark-300"
+            className="mt-0.5 inline-flex max-w-full items-center gap-1 text-left text-[11px] text-dark-500 transition-colors hover:text-dark-300"
           >
-            <CopyIcon className="h-3 w-3" />
-            <span className="font-mono">
-              {keyCopied ? t('admin.settings.keyCopied') : t('admin.settings.keyLabel')}
+            <CopyIcon className="h-3 w-3 shrink-0" />
+            <span className="break-all font-mono">
+              {keyCopied ? t('admin.settings.keyCopied') : setting.key}
             </span>
           </button>
 

@@ -89,7 +89,8 @@ async function renderEditor() {
       </ToastProvider>
     </QueryClientProvider>,
   );
-  await screen.findByText(e.intro);
+  // Под нагрузкой (полный прогон) первая отрисовка бывает дольше секунды по умолчанию.
+  await screen.findByText(e.intro, undefined, { timeout: 5000 });
 }
 
 function visibilitySwitch(title: string): HTMLButtonElement {
@@ -110,7 +111,7 @@ describe('NavigationEditor', () => {
     fireEvent.click(visibilitySwitch(nav.balance));
     fireEvent.click(screen.getByRole('button', { name: `${nav.support}: ${e.moveUp}` }));
     fireEvent.click(screen.getByRole('button', { name: ruLocale.common.save }));
-    await vi.waitFor(() => expect(backend.puts).toHaveLength(1));
+    await vi.waitFor(() => expect(backend.puts).toHaveLength(1), { timeout: 5000 });
 
     const sent = backend.puts[0];
     expect(sent).toHaveLength(IDS.length);

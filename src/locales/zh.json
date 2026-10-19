@@ -2429,7 +2429,6 @@
       "advancedLabel": "高级",
       "paymentsNotConnected": "未接入（{{count}}）",
       "providerConnected": "已接入",
-      "keyLabel": "键",
       "movedToFeatures": "邮箱登录和礼品订阅在“功能”中开启。",
       "openFeatures": "打开“功能”"
     },

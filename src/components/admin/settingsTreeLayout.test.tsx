@@ -190,10 +190,10 @@ describe('SettingsTableRow', () => {
     expect(screen.queryByText(/По умолчанию/)).toBeNull();
   });
 
-  it('ключ копируется по кнопке, а не висит текстом', async () => {
+  it('ключ виден целиком и копируется по клику', async () => {
     await renderRow(setting({ key: 'BALANCE_BUTTON_VISIBLE' }));
 
-    expect(screen.queryByText('BALANCE_BUTTON_VISIBLE')).toBeNull();
+    expect(screen.getByText('BALANCE_BUTTON_VISIBLE')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /BALANCE_BUTTON_VISIBLE/ }));
     await vi.waitFor(() => expect(copied).toContain('BALANCE_BUTTON_VISIBLE'));
     expect(await screen.findByText(s.keyCopied)).toBeTruthy();
