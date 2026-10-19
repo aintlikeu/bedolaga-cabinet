@@ -1,4 +1,7 @@
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CopyIcon } from '@/components/icons';
+import { copyToClipboard } from '@/utils/clipboard';
 import type { SettingDefinition } from '../../api/adminSettings';
 import { cn } from '../../lib/utils';
 import { StarIcon, LockIcon, RefreshIcon } from './icons';
@@ -30,11 +33,34 @@ export function SettingsTableRow({
   className,
 }: SettingsTableRowProps) {
   const { t } = useTranslation();
+  const [keyCopied, setKeyCopied] = useState(false);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    },
+    [],
+  );
+
+  const copyKey = async () => {
+    try {
+      await copyToClipboard(setting.key);
+    } catch {
+      return; // Буфер недоступен (http, запрет браузера): ключ остаётся в подсказке кнопки.
+    }
+    setKeyCopied(true);
+    if (copiedTimer.current) clearTimeout(copiedTimer.current);
+    copiedTimer.current = setTimeout(() => setKeyCopied(false), 1500);
+  };
 
   const formattedKey = formatSettingKey(setting.name || setting.key);
   const displayName = t(`admin.settings.settingNames.${formattedKey}`, formattedKey);
   const description = setting.hint?.description ? stripHtml(setting.hint.description) : null;
   const isModified = setting.has_override;
+  // Значение из .env или кода, которое переопределила админка. У секретов там маска — не показываем.
+  const defaultHint = setting.is_secret
+    ? null
+    : t('admin.settings.defaultValue', { value: formatDefaultValue(setting.original, t) });
   const isBool = setting.type === 'bool';
   const boolChecked = setting.current === true || setting.current === 'true';
   // env-locked keys are pinned in .env and shadow the DB — show value, no input.
@@ -80,15 +106,13 @@ export function SettingsTableRow({
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-[13px] font-medium text-dark-100">{displayName}</span>
 
+            {/* Одна пометка вместо «Изменено» + «БД»: они всегда появлялись вместе. */}
             {isModified && (
-              <span className="rounded-full bg-warning-500/20 px-1.5 py-0.5 text-[10px] font-medium leading-none text-warning-400">
+              <span
+                className="rounded-full bg-warning-500/20 px-1.5 py-0.5 text-[10px] font-medium leading-none text-warning-400"
+                title={defaultHint ?? undefined}
+              >
                 {t('admin.settings.modified')}
-              </span>
-            )}
-
-            {setting.has_override && !locked && (
-              <span className="rounded-full bg-sky-500/20 px-1.5 py-0.5 text-[10px] font-medium leading-none text-sky-400">
-                {t('admin.settings.badgeDb')}
               </span>
             )}
 
@@ -103,14 +127,32 @@ export function SettingsTableRow({
             )}
           </div>
 
-          {/* Setting key */}
-          <div className="mt-0.5">
-            <code className="font-mono text-[11px] text-dark-500">{setting.key}</code>
-          </div>
+          {/* Технический ключ — по кнопке: нужен для .env и поддержки, а не для чтения. */}
+          <button
+            type="button"
+            onClick={copyKey}
+            title={setting.key}
+            aria-label={t('admin.settings.copyKey', { key: setting.key })}
+            className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-dark-600 transition-colors hover:text-dark-300"
+          >
+            <CopyIcon className="h-3 w-3" />
+            <span className="font-mono">
+              {keyCopied ? t('admin.settings.keyCopied') : t('admin.settings.keyLabel')}
+            </span>
+          </button>
 
           {/* Description: у переключателей и коротких полей это единственное объяснение настройки */}
           {description && (
             <p className="mt-1 text-xs leading-relaxed text-dark-400">{description}</p>
+          )}
+          {setting.env_locked && (
+            <p className="mt-0.5 text-[11px] text-warning-400/80">
+              {t('admin.settings.envLockedShort')}
+            </p>
+          )}
+
+          {isModified && defaultHint && (
+            <p className="mt-0.5 text-[11px] text-dark-500">{defaultHint}</p>
           )}
         </div>
 
@@ -185,4 +227,12 @@ export function SettingsTableRow({
       </div>
     </div>
   );
+}
+
+function formatDefaultValue(value: unknown, t: (key: string) => string): string {
+  if (value === true || value === 'true') return t('admin.settings.enabled');
+  if (value === false || value === 'false') return t('admin.settings.disabled');
+  if (value === null || value === undefined || value === '') return '—';
+  const text = typeof value === 'string' ? value : JSON.stringify(value);
+  return text.length > 60 ? `${text.slice(0, 59)}…` : text;
 }

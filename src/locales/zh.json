@@ -2308,7 +2308,8 @@
         "users": "用户",
         "notifications": "通知",
         "database": "数据库",
-        "system": "系统"
+        "system": "系统",
+        "marketing": "营销"
       },
       "tree": {
         "payments_general": "通用",
@@ -2420,7 +2421,15 @@
       "botStartVideoNone": "未设置视频 — 菜单使用 logo 图片",
       "botStartVideoError": "视频上传失败",
       "features": "功能",
-      "navigation": "个人中心导航"
+      "navigation": "个人中心导航",
+      "copyKey": "复制键 {{key}}",
+      "keyCopied": "已复制",
+      "envLockedShort": "已在 .env 中设置，只能在那里修改",
+      "defaultValue": "默认：{{value}}",
+      "advancedLabel": "高级",
+      "paymentsNotConnected": "未接入（{{count}}）",
+      "providerConnected": "已接入",
+      "keyLabel": "键"
     },
     "graceAccess": {
       "title": "宽限访问",

@@ -1,18 +1,22 @@
 import { useTranslation } from 'react-i18next';
 import { useRef, useEffect, useState } from 'react';
-import { SETTINGS_TREE } from './constants';
+import type { SettingDefinition } from '../../api/adminSettings';
+import { SETTINGS_TREE, splitPaymentChildren } from './constants';
 import { StarIcon } from './icons';
 
 interface SettingsMobileTabsProps {
   activeSection: string;
   setActiveSection: (section: string) => void;
   favoritesCount: number;
+  /** Для «Платежей»: подключённые провайдеры идут первыми, остальные — приглушённо следом. */
+  allSettings?: SettingDefinition[];
 }
 
 export function SettingsMobileTabs({
   activeSection,
   setActiveSection,
   favoritesCount,
+  allSettings,
 }: SettingsMobileTabsProps) {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -69,6 +73,22 @@ export function SettingsMobileTabs({
   // Special items excluding favorites
   const specialItems = SETTINGS_TREE.specialItems.filter((item) => item.id !== 'favorites');
 
+  const expandedChildren = () => {
+    const group = SETTINGS_TREE.groups.find((g) => g.id === expandedGroup);
+    if (!group) return [];
+    if (group.id !== 'payments' || !allSettings) {
+      return group.children.map((child) => ({ child, dimmed: false }));
+    }
+    const isOn = (key: string) => {
+      const current = allSettings.find((setting) => setting.key === key)?.current;
+      return current === true || current === 'true';
+    };
+    const { connected, notConnected } = splitPaymentChildren(group.children, isOn);
+    return [
+      ...connected.map((child) => ({ child, dimmed: false })),
+      ...notConnected.map((child) => ({ child, dimmed: true })),
+    ];
+  };
   return (
     <div>
       {/* Level 1: Favorites + special items + group chips */}
@@ -157,24 +177,22 @@ export function SettingsMobileTabs({
           className="scrollbar-hide flex gap-2 overflow-x-auto px-3 pb-2"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
-          {SETTINGS_TREE.groups
-            .find((g) => g.id === expandedGroup)
-            ?.children.map((child) => {
-              const isActive = activeSection === child.id;
-              return (
-                <button
-                  key={child.id}
-                  onClick={() => setActiveSection(child.id)}
-                  className={`shrink-0 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-                    isActive
-                      ? 'bg-accent-500/10 text-accent-400 ring-1 ring-accent-500/20'
-                      : 'bg-dark-800/30 text-dark-500 active:bg-dark-700'
-                  }`}
-                >
-                  <span className="whitespace-nowrap">{t(`admin.settings.tree.${child.id}`)}</span>
-                </button>
-              );
-            })}
+          {expandedChildren().map(({ child, dimmed }) => {
+            const isActive = activeSection === child.id;
+            return (
+              <button
+                key={child.id}
+                onClick={() => setActiveSection(child.id)}
+                className={`shrink-0 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-accent-500/10 text-accent-400 ring-1 ring-accent-500/20'
+                    : 'bg-dark-800/30 text-dark-500 active:bg-dark-700'
+                } ${dimmed && !isActive ? 'opacity-50' : ''}`}
+              >
+                <span className="whitespace-nowrap">{t(`admin.settings.tree.${child.id}`)}</span>
+              </button>
+            );
+          })}
           <div className="w-3 shrink-0" aria-hidden="true" />
         </div>
       )}

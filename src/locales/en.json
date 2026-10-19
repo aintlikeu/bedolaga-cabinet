@@ -3211,7 +3211,8 @@
         "users": "Users",
         "notifications": "Notifications",
         "database": "Database",
-        "system": "System"
+        "system": "System",
+        "marketing": "Marketing"
       },
       "tree": {
         "payments_general": "General",
@@ -3323,7 +3324,15 @@
       "botStartVideoNone": "No video — the menu uses the logo image",
       "botStartVideoError": "Could not upload the video",
       "features": "Features",
-      "navigation": "Cabinet navigation"
+      "navigation": "Cabinet navigation",
+      "copyKey": "Copy key {{key}}",
+      "keyCopied": "copied",
+      "envLockedShort": "Set in .env — can only be changed there",
+      "defaultValue": "Default: {{value}}",
+      "advancedLabel": "Advanced",
+      "paymentsNotConnected": "Not connected ({{count}})",
+      "providerConnected": "connected",
+      "keyLabel": "key"
     },
     "graceAccess": {
       "title": "Grace access",

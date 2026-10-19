@@ -10,6 +10,8 @@ export interface TreeGroup {
   id: string;
   icon: string;
   children: TreeSubItem[];
+  /** Инфраструктура и редкие настройки: показываются отдельно, под пометкой «Расширенные». */
+  advanced?: boolean;
 }
 
 export interface SpecialItem {
@@ -50,6 +52,21 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
   ],
   groups: [
     {
+      id: 'subscriptions',
+      icon: '📦',
+      children: [
+        { id: 'subs_core', categories: ['SUBSCRIPTIONS_CORE', 'TARIFF', 'SUBSCRIPTION', 'CART'] },
+        { id: 'subs_trial', categories: ['TRIAL'] },
+        { id: 'subs_pricing', categories: ['SUBSCRIPTION_PRICES', 'PRICE'] },
+        { id: 'subs_periods', categories: ['PERIODS'] },
+        { id: 'subs_traffic', categories: ['TRAFFIC', 'TRAFFIC_PACKAGES'] },
+        { id: 'subs_simple', categories: ['SIMPLE_SUBSCRIPTION'] },
+        { id: 'subs_autopay', categories: ['AUTOPAY'] },
+        { id: 'subs_daily', categories: ['DAILY'] },
+        { id: 'subs_grace', categories: ['GRACE_ACCESS'] },
+      ],
+    },
+    {
       id: 'payments',
       icon: '💳',
       children: [
@@ -87,18 +104,27 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
       ],
     },
     {
-      id: 'subscriptions',
-      icon: '📦',
+      id: 'users',
+      icon: '👥',
       children: [
-        { id: 'subs_core', categories: ['SUBSCRIPTIONS_CORE', 'TARIFF', 'SUBSCRIPTION', 'CART'] },
-        { id: 'subs_trial', categories: ['TRIAL'] },
-        { id: 'subs_pricing', categories: ['SUBSCRIPTION_PRICES', 'PRICE'] },
-        { id: 'subs_periods', categories: ['PERIODS'] },
-        { id: 'subs_traffic', categories: ['TRAFFIC', 'TRAFFIC_PACKAGES'] },
-        { id: 'subs_simple', categories: ['SIMPLE_SUBSCRIPTION'] },
-        { id: 'subs_autopay', categories: ['AUTOPAY'] },
-        { id: 'subs_daily', categories: ['DAILY'] },
-        { id: 'subs_grace', categories: ['GRACE_ACCESS'] },
+        { id: 'users_auth', categories: ['REGISTRATION_ACCESS', 'OAUTH', 'DISPOSABLE', 'TEST'] },
+        { id: 'users_email', categories: ['SMTP', 'EMAIL'] },
+        { id: 'users_support', categories: ['SUPPORT'] },
+        { id: 'users_channel', categories: ['CHANNEL'] },
+        { id: 'users_localization', categories: ['LOCALIZATION', 'TIMEZONE'] },
+        {
+          id: 'users_moderation',
+          categories: ['MODERATION', 'BAN_NOTIFICATIONS', 'BAN', 'BLACKLIST', 'ABUSE'],
+        },
+      ],
+    },
+    {
+      id: 'marketing',
+      icon: '📣',
+      children: [
+        { id: 'users_referral', categories: ['REFERRAL'] },
+        { id: 'users_contests', categories: ['CONTESTS'] },
+        { id: 'sys_tracking', categories: ['YANDEX', 'S2S'] },
       ],
     },
     {
@@ -121,23 +147,6 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
       ],
     },
     {
-      id: 'users',
-      icon: '👥',
-      children: [
-        { id: 'users_auth', categories: ['REGISTRATION_ACCESS', 'OAUTH', 'DISPOSABLE', 'TEST'] },
-        { id: 'users_email', categories: ['SMTP', 'EMAIL'] },
-        { id: 'users_support', categories: ['SUPPORT'] },
-        { id: 'users_referral', categories: ['REFERRAL'] },
-        { id: 'users_channel', categories: ['CHANNEL'] },
-        { id: 'users_localization', categories: ['LOCALIZATION', 'TIMEZONE'] },
-        { id: 'users_contests', categories: ['CONTESTS'] },
-        {
-          id: 'users_moderation',
-          categories: ['MODERATION', 'BAN_NOTIFICATIONS', 'BAN', 'BLACKLIST', 'ABUSE'],
-        },
-      ],
-    },
-    {
       id: 'notifications',
       icon: '🔔',
       children: [
@@ -147,25 +156,20 @@ export const SETTINGS_TREE: SettingsTreeConfig = {
       ],
     },
     {
-      id: 'database',
-      icon: '🗄️',
+      id: 'system',
+      icon: '⚙️',
+      // Инфраструктура: база, сервер, логи. Внизу дерева и под пометкой «Расширенные».
+      advanced: true,
       children: [
         { id: 'db_general', categories: ['DATABASE'] },
         { id: 'db_postgres', categories: ['POSTGRES'] },
         { id: 'db_sqlite', categories: ['SQLITE'] },
         { id: 'db_redis', categories: ['REDIS'] },
-      ],
-    },
-    {
-      id: 'system',
-      icon: '⚙️',
-      children: [
         { id: 'sys_core', categories: ['CORE', 'DEBUG', 'BOT', 'SERVER', 'PROXY'] },
         { id: 'sys_remnawave', categories: ['REMNAWAVE'] },
         { id: 'sys_reachability', categories: ['BSCHEK'] },
         { id: 'sys_dpichecker', categories: ['DPICHECKER'] },
         { id: 'sys_webapi', categories: ['WEB_API', 'EXTERNAL_ADMIN'] },
-        { id: 'sys_tracking', categories: ['YANDEX', 'S2S'] },
         { id: 'sys_cabinet', categories: ['CABINET'] },
         { id: 'sys_webhook', categories: ['WEBHOOK'] },
         { id: 'sys_server', categories: ['SERVER_STATUS'] },
@@ -209,6 +213,28 @@ export function findTreeLocation(
     }
   }
   return null;
+}
+
+/** Ключ «провайдер подключён» для пункта «Платежей»; у общих пунктов ключа нет — они всегда сверху. */
+export function paymentProviderEnabledKey(child: TreeSubItem): string | null {
+  if (child.id === 'payments_general') return null;
+  // Категория TELEGRAM общая для всего Telegram, а включает оплату звёздами отдельный ключ.
+  if (child.id === 'payments_stars') return 'TELEGRAM_STARS_ENABLED';
+  return `${child.categories[0]}_ENABLED`;
+}
+
+/** Разделить пункты «Платежей» на подключённые (сверху) и остальные, сохраняя порядок. */
+export function splitPaymentChildren(
+  children: readonly TreeSubItem[],
+  isEnabled: (key: string) => boolean,
+): { connected: TreeSubItem[]; notConnected: TreeSubItem[] } {
+  const connected: TreeSubItem[] = [];
+  const notConnected: TreeSubItem[] = [];
+  for (const child of children) {
+    const key = paymentProviderEnabledKey(child);
+    (key === null || isEnabled(key) ? connected : notConnected).push(child);
+  }
+  return { connected, notConnected };
 }
 
 // Theme preset type
