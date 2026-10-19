@@ -4495,7 +4495,9 @@
       "advancedLabel": "Расширенные",
       "paymentsNotConnected": "Не подключены ({{count}})",
       "providerConnected": "подключён",
-      "keyLabel": "ключ"
+      "keyLabel": "ключ",
+      "movedToFeatures": "Вход по email и подарочные подписки включаются в разделе «Функции».",
+      "openFeatures": "Открыть «Функции»"
     },
     "graceAccess": {
       "title": "Grace-доступ",
