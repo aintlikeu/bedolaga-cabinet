@@ -3332,7 +3332,6 @@
       "advancedLabel": "Advanced",
       "paymentsNotConnected": "Not connected ({{count}})",
       "providerConnected": "connected",
-      "keyLabel": "key",
       "movedToFeatures": "Email sign-in and gift subscriptions are switched on in “Features”.",
       "openFeatures": "Open “Features”"
     },
