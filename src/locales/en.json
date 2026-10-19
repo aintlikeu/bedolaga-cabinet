@@ -3683,12 +3683,7 @@
         "external": "External browser",
         "webapp": "Telegram miniapp"
       },
-      "invalidUrl": "Please provide a valid URL (http:// or https://) for all custom buttons",
-      "modeBanner": {
-        "title": "This editor has no effect in the current menu mode",
-        "body": "The bot is in “Full menu” mode. This editor changes the menu only in “Cabinet” mode. In “Full menu” mode, buttons are hidden with toggles in “Interface → General”, where the menu mode is switched too.",
-        "openInterface": "Open “Interface → General”"
-      }
+      "invalidUrl": "Please provide a valid URL (http:// or https://) for all custom buttons"
     },
     "apps": {
       "title": "App Management",
@@ -6877,6 +6872,114 @@
         "polls": {
           "title": "Polls",
           "description": "User polls in the cabinet."
+        }
+      }
+    },
+    "botMenu": {
+      "mode": {
+        "label": "Menu mode",
+        "default": "Full menu",
+        "cabinet": "Cabinet (MiniApp)",
+        "active": "active",
+        "inactiveTitle": "This mode is not enabled in the bot",
+        "inactiveBody": "The bot is in “{{active}}” mode. This menu takes effect after switching the mode in “Interface → General”.",
+        "switch": "Switch mode"
+      },
+      "intro": "Order and visibility of the main-menu buttons. Buttons go two per row; those marked “full width” take a whole row. A user sees a button only when its condition is met.",
+      "wide": "full width",
+      "visible": "show",
+      "moveUp": "up",
+      "moveDown": "down",
+      "locked": "Set in .env — can only be changed there",
+      "resetOrder": "Default order",
+      "resetConfirm": "Restore the default button order? Visibility stays the same; you still need to save.",
+      "saved": "Menu saved",
+      "criticalHidden": {
+        "connect": "Without it users cannot connect to the VPN from the main menu.",
+        "buy": "Without it new users cannot buy a subscription from the main menu.",
+        "subscription": "Users will manage their subscription only through other buttons."
+      },
+      "preview": {
+        "title": "Preview",
+        "asAdmin": "As admin",
+        "error": "Failed to build the preview",
+        "empty": "No buttons in this scenario",
+        "note": "This is how a user sees the menu in the chosen situation. Unsaved changes are included.",
+        "scenarios": {
+          "new": "New user",
+          "active": "Active subscription",
+          "trial": "Trial",
+          "expired": "Subscription expired"
+        }
+      },
+      "items": {
+        "connect": {
+          "title": "Connect",
+          "hint": "Only with an active subscription"
+        },
+        "happ": {
+          "title": "Download Happ",
+          "hint": "With an active subscription, if the Happ download button is on"
+        },
+        "balance": {
+          "title": "Balance",
+          "hint": "Always, while the button is on"
+        },
+        "subscription": {
+          "title": "My subscription",
+          "hint": "With an active subscription"
+        },
+        "buy_traffic": {
+          "title": "Buy traffic",
+          "hint": "For a traffic-limited subscription, if top-up is on"
+        },
+        "trial": {
+          "title": "Trial",
+          "hint": "For new users while a trial is available"
+        },
+        "buy": {
+          "title": "Buy subscription",
+          "hint": "While there is no active subscription"
+        },
+        "simple_buy": {
+          "title": "Quick purchase",
+          "hint": "If simple subscription is on"
+        },
+        "resume_checkout": {
+          "title": "Back to checkout",
+          "hint": "If a purchase is unfinished"
+        },
+        "custom": {
+          "title": "Your buttons",
+          "hint": "Buttons created in the bot admin"
+        },
+        "promocode": {
+          "title": "Promo code",
+          "hint": "Always, while the button is on"
+        },
+        "referral": {
+          "title": "Referrals",
+          "hint": "If the referral program is on"
+        },
+        "contests": {
+          "title": "Contests",
+          "hint": "If contests are on"
+        },
+        "support": {
+          "title": "Support",
+          "hint": "If support is on"
+        },
+        "activate": {
+          "title": "Activate",
+          "hint": "Text is set in “Connect button”"
+        },
+        "info": {
+          "title": "Info",
+          "hint": "Always, while the button is on"
+        },
+        "language": {
+          "title": "Language",
+          "hint": "If language selection is on"
         }
       }
     }

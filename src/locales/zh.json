@@ -2662,12 +2662,7 @@
         "external": "外部浏览器",
         "webapp": "Telegram 小程序"
       },
-      "invalidUrl": "请为所有自定义按钮提供有效的URL（http:// 或 https://）",
-      "modeBanner": {
-        "title": "此编辑器在当前菜单模式下不生效",
-        "body": "机器人当前为“完整菜单”模式。此编辑器仅在“个人中心”模式下修改菜单。在“完整菜单”模式下，请在“界面 → 通用”中用开关隐藏按钮，菜单模式也在那里切换。",
-        "openInterface": "打开“界面 → 通用”"
-      }
+      "invalidUrl": "请为所有自定义按钮提供有效的URL（http:// 或 https://）"
     },
     "apps": {
       "title": "应用管理",
@@ -6542,6 +6537,114 @@
         "polls": {
           "title": "问卷",
           "description": "个人中心中的用户问卷。"
+        }
+      }
+    },
+    "botMenu": {
+      "mode": {
+        "label": "菜单模式",
+        "default": "完整菜单",
+        "cabinet": "Cabinet（MiniApp）",
+        "active": "已启用",
+        "inactiveTitle": "机器人当前未启用此模式",
+        "inactiveBody": "机器人当前为“{{active}}”模式。在“界面 → 通用”中切换模式后此菜单才生效。",
+        "switch": "切换模式"
+      },
+      "intro": "主菜单按钮的顺序和可见性。按钮每行两个，标记为“整行”的按钮独占一行。只有满足条件时用户才会看到按钮。",
+      "wide": "整行",
+      "visible": "显示",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "locked": "已在 .env 中设置，只能在那里修改",
+      "resetOrder": "默认顺序",
+      "resetConfirm": "恢复默认按钮顺序？可见性不变，仍需保存。",
+      "saved": "菜单已保存",
+      "criticalHidden": {
+        "connect": "没有它，用户无法从主菜单连接 VPN。",
+        "buy": "没有它，新用户无法从主菜单购买订阅。",
+        "subscription": "用户只能通过其他按钮管理订阅。"
+      },
+      "preview": {
+        "title": "预览",
+        "asAdmin": "以管理员身份",
+        "error": "无法生成预览",
+        "empty": "此场景下没有按钮",
+        "note": "这是用户在所选情况下看到的菜单。已包含未保存的更改。",
+        "scenarios": {
+          "new": "新用户",
+          "active": "有效订阅",
+          "trial": "试用期",
+          "expired": "订阅已过期"
+        }
+      },
+      "items": {
+        "connect": {
+          "title": "连接",
+          "hint": "仅在订阅有效时"
+        },
+        "happ": {
+          "title": "下载 Happ",
+          "hint": "订阅有效且开启 Happ 下载按钮时"
+        },
+        "balance": {
+          "title": "余额",
+          "hint": "按钮开启时始终显示"
+        },
+        "subscription": {
+          "title": "我的订阅",
+          "hint": "订阅有效时"
+        },
+        "buy_traffic": {
+          "title": "购买流量",
+          "hint": "有限额订阅且开启加购时"
+        },
+        "trial": {
+          "title": "试用期",
+          "hint": "试用可用时面向新用户"
+        },
+        "buy": {
+          "title": "购买订阅",
+          "hint": "没有有效订阅时"
+        },
+        "simple_buy": {
+          "title": "快速购买",
+          "hint": "开启简易订阅时"
+        },
+        "resume_checkout": {
+          "title": "返回结账",
+          "hint": "购买未完成时"
+        },
+        "custom": {
+          "title": "自定义按钮",
+          "hint": "在机器人后台创建的按钮"
+        },
+        "promocode": {
+          "title": "优惠码",
+          "hint": "按钮开启时始终显示"
+        },
+        "referral": {
+          "title": "推荐",
+          "hint": "开启推荐计划时"
+        },
+        "contests": {
+          "title": "竞赛",
+          "hint": "开启竞赛时"
+        },
+        "support": {
+          "title": "客服",
+          "hint": "开启客服时"
+        },
+        "activate": {
+          "title": "激活",
+          "hint": "文本在“连接按钮”中设置"
+        },
+        "info": {
+          "title": "信息",
+          "hint": "按钮开启时始终显示"
+        },
+        "language": {
+          "title": "语言",
+          "hint": "开启语言选择时"
         }
       }
     }
