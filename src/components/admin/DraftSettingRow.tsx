@@ -30,7 +30,10 @@ export function DraftSettingRow({
       isFavorite={isFavorite}
       onToggleFavorite={onToggleFavorite}
       onUpdate={(value) =>
-        draft.put({ kind: 'set', key: setting.key, value, label }, setting.current)
+        draft.put(
+          { kind: 'set', key: setting.key, value, label, secret: setting.is_secret },
+          setting.current,
+        )
       }
       onReset={() =>
         draftState

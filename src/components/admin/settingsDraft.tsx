@@ -20,6 +20,7 @@ import {
 } from '../../api/navigation';
 import { adminWheelApi } from '../../api/wheel';
 import { useNotify } from '../../platform/hooks/useNotify';
+import { useAuthStore } from '../../store/auth';
 import { safeSession } from '../../utils/safeStorage';
 import { cn } from '../../lib/utils';
 
@@ -33,8 +34,11 @@ import { cn } from '../../lib/utils';
  */
 
 export type DraftChange =
-  /** Новое значение настройки — строкой, как её отправляет строка настроек. */
-  | { kind: 'set'; key: string; value: string; label: string }
+  /**
+   * Новое значение настройки — строкой, как её отправляет строка настроек.
+   * `secret`: токен, пароль или ключ — такая правка живёт только в памяти.
+   */
+  | { kind: 'set'; key: string; value: string; label: string; secret?: boolean }
   /** Сброс настройки к значению из .env или кода. */
   | { kind: 'reset'; key: string; label: string }
   /** Флаги с собственными эндпоинтами. */
@@ -84,9 +88,20 @@ function isDraftChange(value: unknown): value is DraftChange {
   }
 }
 
-function loadStored(): Map<string, DraftChange> {
-  const raw = safeSession.getJson<unknown>(STORAGE_KEY, []);
-  const changes = Array.isArray(raw) ? raw.filter(isDraftChange) : [];
+interface StoredDraft {
+  /** Чей черновик: в той же вкладке может войти другой админ. */
+  userId: number;
+  changes: unknown[];
+}
+
+function loadStored(userId: number | undefined): Map<string, DraftChange> {
+  const raw = safeSession.getJson<StoredDraft | null>(STORAGE_KEY, null);
+  if (userId === undefined || !raw || raw.userId !== userId || !Array.isArray(raw.changes)) {
+    return new Map();
+  }
+  const changes = raw.changes
+    .filter(isDraftChange)
+    .filter((change) => !(change.kind === 'set' && change.secret));
   return new Map(changes.map((change) => [changeId(change), change]));
 }
 
@@ -119,14 +134,19 @@ export function SettingsDraftProvider({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const notify = useNotify();
-  const [changes, setChanges] = useState<Map<string, DraftChange>>(loadStored);
+  const userId = useAuthStore((state) => state.user?.id);
+  const [changes, setChanges] = useState<Map<string, DraftChange>>(() => loadStored(userId));
   const [isSaving, setIsSaving] = useState(false);
   const savingRef = useRef(false);
 
+  // Секреты (токены, пароли, ключи) в sessionStorage не пишутся: только память страницы.
   useEffect(() => {
-    if (changes.size === 0) safeSession.removeItem(STORAGE_KEY);
-    else safeSession.setJson(STORAGE_KEY, [...changes.values()]);
-  }, [changes]);
+    const persistable = [...changes.values()].filter(
+      (change) => !(change.kind === 'set' && change.secret),
+    );
+    if (persistable.length === 0 || userId === undefined) safeSession.removeItem(STORAGE_KEY);
+    else safeSession.setJson(STORAGE_KEY, { userId, changes: persistable } satisfies StoredDraft);
+  }, [changes, userId]);
 
   // Закрытие или перезагрузка вкладки с несохранёнными правками — спросить браузером.
   useEffect(() => {
