@@ -2247,7 +2247,8 @@
         "users": "کاربران",
         "notifications": "اعلان‌ها",
         "database": "پایگاه داده",
-        "system": "سیستم"
+        "system": "سیستم",
+        "marketing": "بازاریابی"
       },
       "tree": {
         "payments_general": "عمومی",
@@ -2359,7 +2360,15 @@
       "botStartVideoNone": "ویدیویی تنظیم نشده — منو از تصویر لوگو استفاده می‌کند",
       "botStartVideoError": "بارگذاری ویدیو ناموفق بود",
       "features": "قابلیت‌ها",
-      "navigation": "ناوبری کابینت"
+      "navigation": "ناوبری کابینت",
+      "copyKey": "کپی کلید {{key}}",
+      "keyCopied": "کپی شد",
+      "envLockedShort": "در ‎.env تنظیم شده — فقط همان‌جا قابل تغییر است",
+      "defaultValue": "پیش‌فرض: {{value}}",
+      "advancedLabel": "پیشرفته",
+      "paymentsNotConnected": "متصل نشده ({{count}})",
+      "providerConnected": "متصل",
+      "keyLabel": "کلید"
     },
     "graceAccess": {
       "title": "دسترسی مهلت‌دار",

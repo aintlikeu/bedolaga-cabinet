@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SETTINGS_TREE } from './constants';
+import { SETTINGS_TREE, splitPaymentChildren, type TreeSubItem } from './constants';
 import { StarIcon, SearchIcon, CloseIcon, ChevronDownIcon } from './icons';
-import { SettingDefinition } from '../../api/adminSettings';
+import type { SettingDefinition } from '../../api/adminSettings';
 import { formatSettingKey } from './utils';
 import { cn } from '../../lib/utils';
 
@@ -29,6 +29,7 @@ export function SettingsTreeSidebar({
 }: SettingsTreeSidebarProps) {
   const { t } = useTranslation();
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+  const [showNotConnected, setShowNotConnected] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -131,6 +132,37 @@ export function SettingsTreeSidebar({
   const isGroupActive = (groupId: string) => {
     const group = SETTINGS_TREE.groups.find((g) => g.id === groupId);
     return group?.children.some((child) => child.id === activeSection) ?? false;
+  };
+
+  const isSettingOn = (key: string): boolean => {
+    const current = allSettings?.find((setting) => setting.key === key)?.current;
+    return current === true || current === 'true';
+  };
+
+  const renderChild = (child: TreeSubItem, connected: boolean) => {
+    const isActive = activeSection === child.id;
+    return (
+      <button
+        key={child.id}
+        onClick={() => onSectionChange(child.id)}
+        className={cn(
+          'flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-sm transition-all',
+          isActive
+            ? 'bg-accent-500/10 text-accent-400'
+            : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-200',
+        )}
+      >
+        {t(`admin.settings.tree.${child.id}`, child.id)}
+        {connected && (
+          <span
+            className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-success-500"
+            title={t('admin.settings.providerConnected')}
+            role="img"
+            aria-label={t('admin.settings.providerConnected')}
+          />
+        )}
+      </button>
+    );
   };
 
   // Special items excluding favorites (favorites is rendered separately)
@@ -268,9 +300,24 @@ export function SettingsTreeSidebar({
         {SETTINGS_TREE.groups.map((group) => {
           const isExpanded = expandedGroup === group.id;
           const hasActiveChild = isGroupActive(group.id);
+          // «Платежи»: подключённые провайдеры сверху, остальные свёрнуты.
+          const payments =
+            group.id === 'payments' && allSettings
+              ? splitPaymentChildren(group.children, isSettingOn)
+              : null;
+          const notConnectedOpen =
+            showNotConnected ||
+            (payments?.notConnected.some((child) => child.id === activeSection) ?? false);
 
           return (
             <div key={group.id}>
+              {group.advanced && (
+                <div className="px-3 pb-1 pt-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-dark-500">
+                    {t('admin.settings.advancedLabel')}
+                  </span>
+                </div>
+              )}
               {/* Group header */}
               <button
                 onClick={() => handleGroupToggle(group.id)}
@@ -296,23 +343,35 @@ export function SettingsTreeSidebar({
               {/* Children */}
               {isExpanded && (
                 <div className="relative ml-5 mt-0.5 space-y-0.5 border-l border-dark-700/50 pl-3">
-                  {group.children.map((child) => {
-                    const isActive = activeSection === child.id;
-                    return (
-                      <button
-                        key={child.id}
-                        onClick={() => onSectionChange(child.id)}
-                        className={cn(
-                          'flex w-full items-center rounded-lg px-3 py-1.5 text-left text-sm transition-all',
-                          isActive
-                            ? 'bg-accent-500/10 text-accent-400'
-                            : 'text-dark-400 hover:bg-dark-800/50 hover:text-dark-200',
-                        )}
-                      >
-                        {t(`admin.settings.tree.${child.id}`, child.id)}
-                      </button>
-                    );
-                  })}
+                  {payments ? (
+                    <>
+                      {payments.connected.map((child) =>
+                        renderChild(child, child.id !== 'payments_general'),
+                      )}
+                      {payments.notConnected.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowNotConnected((open) => !open)}
+                          aria-expanded={notConnectedOpen}
+                          className="flex w-full items-center gap-1 rounded-lg px-3 py-1.5 text-left text-xs text-dark-500 transition-colors hover:text-dark-300"
+                        >
+                          {t('admin.settings.paymentsNotConnected', {
+                            count: payments.notConnected.length,
+                          })}
+                          <ChevronDownIcon
+                            className={cn(
+                              'h-3 w-3 transition-transform',
+                              notConnectedOpen && 'rotate-180',
+                            )}
+                          />
+                        </button>
+                      )}
+                      {notConnectedOpen &&
+                        payments.notConnected.map((child) => renderChild(child, false))}
+                    </>
+                  ) : (
+                    group.children.map((child) => renderChild(child, false))
+                  )}
                 </div>
               )}
             </div>

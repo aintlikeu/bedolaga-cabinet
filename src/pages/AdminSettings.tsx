@@ -245,6 +245,7 @@ export default function AdminSettings() {
           activeSection={activeSection}
           setActiveSection={setActiveSection}
           favoritesCount={favorites.length}
+          allSettings={allSettings}
         />
         <SettingsSearchMobile
           searchQuery={searchQuery}
