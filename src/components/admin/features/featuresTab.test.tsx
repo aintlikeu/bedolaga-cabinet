@@ -16,11 +16,12 @@ const f = ruLocale.admin.features;
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => {
+    t: (key: string, options?: Record<string, unknown>) => {
       const value = key
         .split('.')
         .reduce<unknown>((node, part) => (node as Record<string, unknown>)?.[part], ruLocale);
-      return typeof value === 'string' ? value : key;
+      if (typeof value !== 'string') return key;
+      return value.replace(/\{\{(\w+)\}\}/g, (_, name) => String(options?.[name] ?? ''));
     },
     i18n: { language: 'ru', changeLanguage: () => Promise.resolve() },
   }),
@@ -41,10 +42,10 @@ const backend = vi.hoisted(() => ({
   giftUpdates: [] as boolean[],
   /** Держит PUT настройки «в полёте», пока тест его не отпустит. */
   hold: null as null | (() => void),
+  /** Ключи, сохранение которых падает. */
+  failKeys: new Set<string>(),
   nav: { items: [] as { id: string; visible: boolean }[] },
   navPuts: [] as { id: string; visible: boolean }[][],
-  /** Ответы на PUT раскладки, отпускаемые тестом по одному. */
-  navRelease: [] as (() => void)[],
 }));
 
 vi.mock('@/api/adminSettings', () => ({
@@ -59,6 +60,7 @@ vi.mock('@/api/adminSettings', () => ({
       ),
     updateSetting: (key: string, value: unknown) => {
       backend.updates.push({ key, value });
+      if (backend.failKeys.has(key)) return Promise.reject(new Error('500'));
       return new Promise((resolve) => {
         const finish = () => {
           const item = backend.settings.find((s) => s.key === key);
@@ -93,12 +95,8 @@ vi.mock('@/api/navigation', async (importOriginal) => {
       getLayout: () => Promise.resolve(structuredClone(backend.nav)),
       updateLayout: (layout: { items: { id: string; visible: boolean }[] }) => {
         backend.navPuts.push(structuredClone(layout.items));
-        return new Promise((resolve) => {
-          backend.navRelease.push(() => {
-            backend.nav = structuredClone(layout);
-            resolve(structuredClone(layout));
-          });
-        });
+        backend.nav = structuredClone(layout);
+        return Promise.resolve(structuredClone(layout));
       },
     },
   };
@@ -135,25 +133,44 @@ beforeEach(() => {
     })),
   };
   backend.navPuts = [];
-  backend.navRelease = [];
+  backend.failKeys = new Set();
+  window.sessionStorage.clear();
 });
 afterEach(cleanup);
 
 async function renderTab(onOpenSection?: (section: string) => void) {
   const { FeaturesTab } = await import('./FeaturesTab');
+  const { SettingsDraftBar, SettingsDraftProvider } = await import('../settingsDraft');
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  render(
+  const view = render(
     <QueryClientProvider client={client}>
       <ToastProvider>
         <PlatformProvider>
           <MemoryRouter>
-            <FeaturesTab onOpenSection={onOpenSection} />
+            <SettingsDraftProvider>
+              <FeaturesTab onOpenSection={onOpenSection} />
+              <SettingsDraftBar />
+            </SettingsDraftProvider>
           </MemoryRouter>
         </PlatformProvider>
       </ToastProvider>
     </QueryClientProvider>,
   );
   await screen.findByText(f.intro);
+  return view;
+}
+
+const d = ruLocale.admin.settingsDraft;
+
+/** Нажать «Сохранить» на панели черновика. */
+function saveDraft() {
+  const bar = screen.getByRole('region', { name: d.region });
+  fireEvent.click(within(bar).getByRole('button', { name: ruLocale.common.save }));
+}
+
+/** Дождаться, пока переключатель станет доступен (данные загружены). */
+async function ready(toggle: HTMLElement) {
+  await vi.waitFor(() => expect((toggle as HTMLButtonElement).disabled).toBe(false));
 }
 
 function card(featureId: keyof typeof f.items): HTMLElement {
@@ -170,44 +187,99 @@ function switchIn(featureId: keyof typeof f.items, label: string): HTMLElement {
 }
 
 describe('FeaturesTab', () => {
-  it('включает функцию через её настройку бота', async () => {
+  it('правка копится в черновике и уходит только по «Сохранить»', async () => {
     await renderTab();
     const toggle = switchIn('simple_subscription', f.toggles.enabled);
     expect(toggle.getAttribute('aria-checked')).toBe('false');
 
     fireEvent.click(toggle);
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+    expect(within(card('simple_subscription')).getByText(d.unsaved)).toBeTruthy();
+    expect(backend.updates).toEqual([]);
 
+    saveDraft();
     await vi.waitFor(() =>
       expect(backend.updates).toEqual([{ key: 'SIMPLE_SUBSCRIPTION_ENABLED', value: 'true' }]),
     );
+    await vi.waitFor(() => expect(screen.queryByRole('region', { name: d.region })).toBeNull());
   });
 
-  it('подарки включаются через эндпоинт брендинга, кнопка — своей настройкой', async () => {
+  it('повторный клик возвращает как было и снимает правку', async () => {
     await renderTab();
-    await vi.waitFor(() =>
-      expect((switchIn('gifts', f.toggles.enabled) as HTMLButtonElement).disabled).toBe(false),
+    const toggle = switchIn('simple_subscription', f.toggles.enabled);
+
+    fireEvent.click(toggle);
+    fireEvent.click(toggle);
+
+    expect(toggle.getAttribute('aria-checked')).toBe('false');
+    expect(screen.queryByRole('region', { name: d.region })).toBeNull();
+  });
+
+  it('«Отменить» на панели сбрасывает все правки', async () => {
+    await renderTab();
+    fireEvent.click(switchIn('simple_subscription', f.toggles.enabled));
+    fireEvent.click(switchIn('info', f.toggles.botButton));
+
+    const bar = screen.getByRole('region', { name: d.region });
+    expect(within(bar).getByText(d.count.replace('{{count}}', '2'))).toBeTruthy();
+    fireEvent.click(within(bar).getByRole('button', { name: ruLocale.common.cancel }));
+
+    expect(switchIn('simple_subscription', f.toggles.enabled).getAttribute('aria-checked')).toBe(
+      'false',
     );
+    expect(backend.updates).toEqual([]);
+  });
+
+  it('подарки сохраняются через эндпоинт брендинга, кнопка — своей настройкой', async () => {
+    await renderTab();
+    await ready(switchIn('gifts', f.toggles.enabled));
 
     fireEvent.click(switchIn('gifts', f.toggles.enabled));
-    await vi.waitFor(() => expect(backend.giftUpdates).toEqual([true]));
-
     fireEvent.click(switchIn('gifts', f.toggles.botButton));
-    await vi.waitFor(() =>
-      expect(backend.updates).toEqual([{ key: 'GIFT_BUTTON_VISIBLE', value: 'false' }]),
-    );
+    saveDraft();
+
+    await vi.waitFor(() => expect(backend.giftUpdates).toEqual([true]));
+    expect(backend.updates).toEqual([{ key: 'GIFT_BUTTON_VISIBLE', value: 'false' }]);
   });
 
-  it('повторный клик, пока запрос в полёте, не отправляет второй', async () => {
+  it('пока идёт сохранение, переключатели заблокированы', async () => {
     await renderTab();
     backend.hold = () => {};
     const toggle = switchIn('simple_subscription', f.toggles.enabled);
 
     fireEvent.click(toggle);
+    saveDraft();
     await vi.waitFor(() => expect((toggle as HTMLButtonElement).disabled).toBe(true));
     fireEvent.click(toggle);
 
     expect(backend.updates).toHaveLength(1);
     backend.hold?.();
+  });
+
+  it('при ошибке упавшая правка остаётся в черновике, остальные сохранены', async () => {
+    backend.failKeys = new Set(['INFO_BUTTON_VISIBLE']);
+    await renderTab();
+    fireEvent.click(switchIn('simple_subscription', f.toggles.enabled));
+    fireEvent.click(switchIn('info', f.toggles.botButton));
+
+    saveDraft();
+    await vi.waitFor(() => expect(backend.updates).toHaveLength(2));
+
+    const bar = await screen.findByRole('region', { name: d.region });
+    expect(within(bar).getByText(d.count.replace('{{count}}', '1'))).toBeTruthy();
+    expect(switchIn('info', f.toggles.botButton).getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('черновик переживает уход со страницы', async () => {
+    const first = await renderTab();
+    fireEvent.click(switchIn('simple_subscription', f.toggles.enabled));
+    first.unmount();
+
+    await renderTab();
+    expect(switchIn('simple_subscription', f.toggles.enabled).getAttribute('aria-checked')).toBe(
+      'true',
+    );
+    expect(screen.getByRole('region', { name: d.region })).toBeTruthy();
   });
 
   it('ключ из .env заблокирован и объясняет почему', async () => {
@@ -238,7 +310,6 @@ describe('FeaturesTab', () => {
     await renderTab(onOpenSection);
 
     expect(screen.getByText(f.cabinetMode.title)).toBeTruthy();
-    expect(within(card('balance')).queryByText(f.hints.envLocked)).toBeTruthy();
     expect(within(card('info')).getByText(f.hints.cabinetMode)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: f.cabinetMode.open }));
     expect(onOpenSection).toHaveBeenCalledWith('buttons');
@@ -262,35 +333,29 @@ describe('FeaturesTab', () => {
     expect(screen.queryByRole('heading', { name: f.items.gifts.title })).toBeNull();
   });
 
-  it('скрывает пункт навигации кабинета, отправляя раскладку целиком', async () => {
+  it('правки навигации кабинета уходят одним запросом с целой раскладкой', async () => {
     await renderTab();
-    const toggle = switchIn('balance', f.toggles.cabinet);
-    await vi.waitFor(() => expect((toggle as HTMLButtonElement).disabled).toBe(false));
+    await ready(switchIn('balance', f.toggles.cabinet));
 
-    fireEvent.click(toggle);
+    fireEvent.click(switchIn('balance', f.toggles.cabinet));
+    fireEvent.click(switchIn('info', f.toggles.cabinet));
+    saveDraft();
     await vi.waitFor(() => expect(backend.navPuts).toHaveLength(1));
-    backend.navRelease.shift()?.();
 
     const sent = backend.navPuts[0];
-    expect(sent.map((item) => item.id)).toEqual(backend.nav.items.map((item) => item.id));
-    expect(sent.find((item) => item.id === 'balance')?.visible).toBe(false);
-    expect(sent.filter((item) => !item.visible)).toHaveLength(1);
-  });
-
-  it('две быстрые правки навигации подряд не затирают друг друга', async () => {
-    await renderTab();
-    const balance = switchIn('balance', f.toggles.cabinet);
-    const info = switchIn('info', f.toggles.cabinet);
-    await vi.waitFor(() => expect((info as HTMLButtonElement).disabled).toBe(false));
-
-    fireEvent.click(balance);
-    fireEvent.click(info);
-    await vi.waitFor(() => expect(backend.navPuts).toHaveLength(2));
-    backend.navRelease.shift()?.();
-    backend.navRelease.shift()?.();
-
-    // Второй PUT несёт обе правки: он посчитан от уже обновлённого кэша.
-    const hidden = backend.navPuts[1].filter((item) => !item.visible).map((item) => item.id);
-    expect(hidden.sort()).toEqual(['balance', 'info']);
+    expect(sent.map((item) => item.id)).toEqual([
+      'dashboard',
+      'subscription',
+      'balance',
+      'support',
+      'info',
+      'profile',
+    ]);
+    expect(
+      sent
+        .filter((item) => !item.visible)
+        .map((item) => item.id)
+        .sort(),
+    ).toEqual(['balance', 'info']);
   });
 });

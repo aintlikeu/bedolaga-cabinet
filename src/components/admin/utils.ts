@@ -35,3 +35,12 @@ export function stripHtml(html: string): string {
 
   return cleaned;
 }
+
+/** Название настройки для админки: русское из settingNames или читаемый ключ. */
+export function settingDisplayName(
+  setting: { key: string; name?: string },
+  t: (key: string, defaultValue: string) => string,
+): string {
+  const formattedKey = formatSettingKey(setting.name || setting.key);
+  return t(`admin.settings.settingNames.${formattedKey}`, formattedKey);
+}

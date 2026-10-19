@@ -1,18 +1,17 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { adminSettingsApi, type SettingDefinition } from '../../../api/adminSettings';
 import { brandingApi } from '../../../api/branding';
-import { NAV_LAYOUT_QUERY_KEY, navigationApi, type NavLayout } from '../../../api/navigation';
+import { NAV_LAYOUT_QUERY_KEY, navigationApi } from '../../../api/navigation';
 import { adminWheelApi } from '../../../api/wheel';
-import { useNotify } from '../../../platform/hooks/useNotify';
-import { getApiErrorMessage } from '../../../utils/api-error';
 import { ChevronRightIcon, LockIcon, SearchIcon } from '@/components/icons';
 import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton';
 import { cn } from '../../../lib/utils';
 import { isNavItemVisible } from '../../../hooks/useNavLayout';
 import { backTo } from '../AdminBackButton';
+import { type DraftChange, changeId, useSettingsDraft } from '../settingsDraft';
 import { Toggle } from '../Toggle';
 import {
   FEATURE_GROUPS,
@@ -30,19 +29,23 @@ interface FlagState {
   value: boolean;
   /** Задано в .env (или только для чтения): в админке не меняется. */
   locked: boolean;
+  /** Значение взято из несохранённого черновика страницы. */
+  draft?: boolean;
 }
 
 const UNAVAILABLE: FlagState = { available: false, value: false, locked: false };
 
-function sourceId(source: FlagSource): string {
-  if (source.type === 'setting') return `setting:${source.key}`;
-  if (source.type === 'nav') return `nav:${source.id}`;
-  return source.type;
-}
-
-/** Раскладка с переключённой видимостью одного пункта; порядок не меняется. */
-function withNavVisibility(layout: NavLayout, id: string, visible: boolean): NavLayout {
-  return { items: layout.items.map((item) => (item.id === id ? { ...item, visible } : item)) };
+/** Правка черновика для переключателя функции; id совпадает с правками дерева настроек. */
+function toChange(source: FlagSource, next: boolean, label: string): DraftChange {
+  switch (source.type) {
+    case 'setting':
+      // Строкой, как и переключатель в дереве настроек.
+      return { kind: 'set', key: source.key, value: next ? 'true' : 'false', label };
+    case 'nav':
+      return { kind: 'nav', id: source.id, visible: next, label };
+    default:
+      return { kind: source.type, value: next, label };
+  }
 }
 
 // Откуда пользователь пришёл в раздел — туда вернёт «Назад» со страниц, на которые ведут карточки.
@@ -55,12 +58,10 @@ interface FeaturesTabProps {
 
 export function FeaturesTab({ onOpenSection }: FeaturesTabProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const notify = useNotify();
+  const draft = useSettingsDraft();
   const [search, setSearch] = useState('');
-  const [pending, setPending] = useState<ReadonlySet<string>>(new Set());
 
-  // Тот же запрос, что у страницы настроек: кэш общий, правки видны в дереве сразу.
+  // Тот же запрос, что у страницы настроек: кэш общий.
   const settingsQuery = useQuery({
     queryKey: ['admin-settings'],
     queryFn: () => adminSettingsApi.getSettings(),
@@ -81,7 +82,6 @@ export function FeaturesTab({ onOpenSection }: FeaturesTabProps) {
     queryFn: adminWheelApi.getConfig,
     retry: false,
   });
-  // Тот же ключ, что у навигации кабинета: админ сразу видит своё меню изменённым.
   const navQuery = useQuery({
     queryKey: NAV_LAYOUT_QUERY_KEY,
     queryFn: navigationApi.getLayout,
@@ -97,7 +97,8 @@ export function FeaturesTab({ onOpenSection }: FeaturesTabProps) {
   const value = useCallback((key: string) => settingsByKey.get(key)?.current, [settingsByKey]);
   const isCabinetMenuMode = value('MAIN_MENU_MODE') === 'cabinet';
 
-  const flagState = useCallback(
+  /** Сохранённое состояние — без черновика. */
+  const serverState = useCallback(
     (source: FlagSource): FlagState => {
       switch (source.type) {
         case 'setting': {
@@ -130,87 +131,37 @@ export function FeaturesTab({ onOpenSection }: FeaturesTabProps) {
     [settingsByKey, giftQuery.data, emailAuthQuery.data, wheelQuery.data, navQuery.data],
   );
 
-  const toggleMutation = useMutation({
-    mutationFn: async ({ source, next }: { source: FlagSource; next: boolean }) => {
-      switch (source.type) {
-        case 'setting':
-          // Строкой, как и переключатель в дереве настроек.
-          return adminSettingsApi.updateSetting(source.key, next ? 'true' : 'false');
-        case 'gift':
-          return brandingApi.updateGiftEnabled(next);
-        case 'emailAuth':
-          return brandingApi.updateEmailAuthEnabled(next);
-        case 'wheel':
-          return adminWheelApi.updateConfig({ is_enabled: next });
-        case 'nav': {
-          // Кэш уже обновлён в onMutate: отправляем раскладку целиком, вместе с соседними правками.
-          const layout = queryClient.getQueryData<NavLayout>(NAV_LAYOUT_QUERY_KEY);
-          if (!layout) throw new Error('navigation layout is not loaded');
-          return navigationApi.updateLayout(layout);
+  /** Состояние для показа: сохранённое, поверх — правка из черновика. */
+  const flagState = useCallback(
+    (source: FlagSource): FlagState => {
+      const state = serverState(source);
+      if (!state.available) return state;
+      const change = draft.draftOf(changeId(toChange(source, false, '')));
+      if (!change) return state;
+      switch (change.kind) {
+        case 'set':
+          return { ...state, value: change.value === 'true', draft: true };
+        case 'reset': {
+          const original =
+            source.type === 'setting' ? settingsByKey.get(source.key)?.original : undefined;
+          return { ...state, value: asBool(original), draft: true };
         }
-      }
-    },
-    onMutate: ({ source, next }) => {
-      setPending((prev) => new Set(prev).add(sourceId(source)));
-      if (source.type !== 'nav') return undefined;
-      const previous = queryClient.getQueryData<NavLayout>(NAV_LAYOUT_QUERY_KEY);
-      if (previous) {
-        queryClient.setQueryData(
-          NAV_LAYOUT_QUERY_KEY,
-          withNavVisibility(previous, source.id, next),
-        );
-      }
-      return { previousNav: previous };
-    },
-    onError: (err, { source }, context) => {
-      // Откатываем только свой пункт: соседние правки, сделанные тем временем, остаются.
-      const current = queryClient.getQueryData<NavLayout>(NAV_LAYOUT_QUERY_KEY);
-      if (source.type === 'nav' && context?.previousNav && current) {
-        queryClient.setQueryData(
-          NAV_LAYOUT_QUERY_KEY,
-          withNavVisibility(current, source.id, isNavItemVisible(context.previousNav, source.id)),
-        );
-      }
-      notify.error(getApiErrorMessage(err, t('common.error')));
-    },
-    onSettled: (_data, _err, { source }) => {
-      setPending((prev) => {
-        const next = new Set(prev);
-        next.delete(sourceId(source));
-        return next;
-      });
-      switch (source.type) {
-        case 'setting':
-          queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
-          // Пункт «Рефералы» в навигации кабинета решается по условиям программы.
-          if (source.key === 'REFERRAL_PROGRAM_ENABLED') {
-            queryClient.invalidateQueries({ queryKey: ['referral-terms'] });
-          }
-          break;
-        case 'gift':
-          queryClient.invalidateQueries({ queryKey: ['gift-enabled'] });
-          break;
-        case 'emailAuth':
-          queryClient.invalidateQueries({ queryKey: ['email-auth-enabled'] });
-          break;
-        case 'wheel':
-          queryClient.invalidateQueries({ queryKey: ['admin-wheel-config'] });
-          queryClient.invalidateQueries({ queryKey: ['wheel-config'] });
-          break;
         case 'nav':
-          queryClient.invalidateQueries({ queryKey: NAV_LAYOUT_QUERY_KEY });
-          break;
+          return { ...state, value: change.visible, draft: true };
+        default:
+          return { ...state, value: change.value, draft: true };
       }
     },
-  });
+    [serverState, draft, settingsByKey],
+  );
 
   const toggle = useCallback(
-    (source: FlagSource) => {
+    (source: FlagSource, label: string) => {
       const state = flagState(source);
-      if (!state.available || state.locked || pending.has(sourceId(source))) return;
-      toggleMutation.mutate({ source, next: !state.value });
+      if (!state.available || state.locked || draft.isSaving) return;
+      draft.put(toChange(source, !state.value, label), serverState(source).value);
     },
-    [flagState, pending, toggleMutation],
+    [flagState, serverState, draft],
   );
 
   const query = search.trim().toLowerCase();
@@ -302,7 +253,7 @@ export function FeaturesTab({ onOpenSection }: FeaturesTabProps) {
                   feature={feature}
                   value={value}
                   flagState={flagState}
-                  pending={pending}
+                  isSaving={draft.isSaving}
                   onToggle={toggle}
                   isCabinetMenuMode={isCabinetMenuMode}
                   onOpenSection={onOpenSection}
@@ -344,8 +295,8 @@ interface FeatureCardProps {
   feature: FeatureDefinition;
   value: (key: string) => unknown;
   flagState: (source: FlagSource) => FlagState;
-  pending: ReadonlySet<string>;
-  onToggle: (source: FlagSource) => void;
+  isSaving: boolean;
+  onToggle: (source: FlagSource, label: string) => void;
   isCabinetMenuMode: boolean;
   onOpenSection?: (section: string) => void;
 }
@@ -354,7 +305,7 @@ function FeatureCard({
   feature,
   value,
   flagState,
-  pending,
+  isSaving,
   onToggle,
   isCabinetMenuMode,
   onOpenSection,
@@ -391,11 +342,11 @@ function FeatureCard({
         <div className="mt-3 divide-y divide-dark-700/40 rounded-xl bg-dark-900/30">
           {feature.toggles.map((toggle) => (
             <ToggleRow
-              key={sourceId(toggle.source)}
+              key={changeId(toChange(toggle.source, false, ''))}
               toggle={toggle}
               title={title}
               state={flagState(toggle.source)}
-              isPending={pending.has(sourceId(toggle.source))}
+              isPending={isSaving}
               onToggle={onToggle}
               featureOn={featureOn}
               isCabinetMenuMode={isCabinetMenuMode}
@@ -433,7 +384,7 @@ interface ToggleRowProps {
   title: string;
   state: FlagState;
   isPending: boolean;
-  onToggle: (source: FlagSource) => void;
+  onToggle: (source: FlagSource, label: string) => void;
   featureOn: boolean;
   isCabinetMenuMode: boolean;
 }
@@ -471,10 +422,13 @@ function ToggleRow({
           {state.locked && <LockIcon className="h-3 w-3 text-warning-400" />}
         </p>
         {hint && <p className="text-[11px] text-dark-500">{hint}</p>}
+        {state.draft && (
+          <p className="text-[11px] text-accent-400">{t('admin.settingsDraft.unsaved')}</p>
+        )}
       </div>
       <Toggle
         checked={state.value}
-        onChange={() => onToggle(toggle.source)}
+        onChange={() => onToggle(toggle.source, `${title}: ${label}`)}
         disabled={!state.available || state.locked || isPending}
         aria-label={`${title}: ${label}`}
       />
