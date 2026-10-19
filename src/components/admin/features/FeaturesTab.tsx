@@ -4,12 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminSettingsApi, type SettingDefinition } from '../../../api/adminSettings';
 import { brandingApi } from '../../../api/branding';
+import { NAV_LAYOUT_QUERY_KEY, navigationApi, type NavLayout } from '../../../api/navigation';
 import { adminWheelApi } from '../../../api/wheel';
 import { useNotify } from '../../../platform/hooks/useNotify';
 import { getApiErrorMessage } from '../../../utils/api-error';
 import { ChevronRightIcon, LockIcon, SearchIcon } from '@/components/icons';
 import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton';
 import { cn } from '../../../lib/utils';
+import { isNavItemVisible } from '../../../hooks/useNavLayout';
 import { backTo } from '../AdminBackButton';
 import { Toggle } from '../Toggle';
 import {
@@ -33,7 +35,14 @@ interface FlagState {
 const UNAVAILABLE: FlagState = { available: false, value: false, locked: false };
 
 function sourceId(source: FlagSource): string {
-  return source.type === 'setting' ? `setting:${source.key}` : source.type;
+  if (source.type === 'setting') return `setting:${source.key}`;
+  if (source.type === 'nav') return `nav:${source.id}`;
+  return source.type;
+}
+
+/** Раскладка с переключённой видимостью одного пункта; порядок не меняется. */
+function withNavVisibility(layout: NavLayout, id: string, visible: boolean): NavLayout {
+  return { items: layout.items.map((item) => (item.id === id ? { ...item, visible } : item)) };
 }
 
 // Откуда пользователь пришёл в раздел — туда вернёт «Назад» со страниц, на которые ведут карточки.
@@ -72,6 +81,12 @@ export function FeaturesTab({ onOpenSection }: FeaturesTabProps) {
     queryFn: adminWheelApi.getConfig,
     retry: false,
   });
+  // Тот же ключ, что у навигации кабинета: админ сразу видит своё меню изменённым.
+  const navQuery = useQuery({
+    queryKey: NAV_LAYOUT_QUERY_KEY,
+    queryFn: navigationApi.getLayout,
+    retry: false,
+  });
 
   const settingsByKey = useMemo(() => {
     const map = new Map<string, SettingDefinition>();
@@ -106,9 +121,13 @@ export function FeaturesTab({ onOpenSection }: FeaturesTabProps) {
           return wheelQuery.data
             ? { available: true, value: wheelQuery.data.is_enabled, locked: false }
             : UNAVAILABLE;
+        case 'nav':
+          return navQuery.data
+            ? { available: true, value: isNavItemVisible(navQuery.data, source.id), locked: false }
+            : UNAVAILABLE;
       }
     },
-    [settingsByKey, giftQuery.data, emailAuthQuery.data, wheelQuery.data],
+    [settingsByKey, giftQuery.data, emailAuthQuery.data, wheelQuery.data, navQuery.data],
   );
 
   const toggleMutation = useMutation({
@@ -123,12 +142,35 @@ export function FeaturesTab({ onOpenSection }: FeaturesTabProps) {
           return brandingApi.updateEmailAuthEnabled(next);
         case 'wheel':
           return adminWheelApi.updateConfig({ is_enabled: next });
+        case 'nav': {
+          // Кэш уже обновлён в onMutate: отправляем раскладку целиком, вместе с соседними правками.
+          const layout = queryClient.getQueryData<NavLayout>(NAV_LAYOUT_QUERY_KEY);
+          if (!layout) throw new Error('navigation layout is not loaded');
+          return navigationApi.updateLayout(layout);
+        }
       }
     },
-    onMutate: ({ source }) => {
+    onMutate: ({ source, next }) => {
       setPending((prev) => new Set(prev).add(sourceId(source)));
+      if (source.type !== 'nav') return undefined;
+      const previous = queryClient.getQueryData<NavLayout>(NAV_LAYOUT_QUERY_KEY);
+      if (previous) {
+        queryClient.setQueryData(
+          NAV_LAYOUT_QUERY_KEY,
+          withNavVisibility(previous, source.id, next),
+        );
+      }
+      return { previousNav: previous };
     },
-    onError: (err) => {
+    onError: (err, { source }, context) => {
+      // Откатываем только свой пункт: соседние правки, сделанные тем временем, остаются.
+      const current = queryClient.getQueryData<NavLayout>(NAV_LAYOUT_QUERY_KEY);
+      if (source.type === 'nav' && context?.previousNav && current) {
+        queryClient.setQueryData(
+          NAV_LAYOUT_QUERY_KEY,
+          withNavVisibility(current, source.id, isNavItemVisible(context.previousNav, source.id)),
+        );
+      }
       notify.error(getApiErrorMessage(err, t('common.error')));
     },
     onSettled: (_data, _err, { source }) => {
@@ -154,6 +196,9 @@ export function FeaturesTab({ onOpenSection }: FeaturesTabProps) {
         case 'wheel':
           queryClient.invalidateQueries({ queryKey: ['admin-wheel-config'] });
           queryClient.invalidateQueries({ queryKey: ['wheel-config'] });
+          break;
+        case 'nav':
+          queryClient.invalidateQueries({ queryKey: NAV_LAYOUT_QUERY_KEY });
           break;
       }
     },

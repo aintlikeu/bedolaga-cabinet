@@ -6760,7 +6760,8 @@
       },
       "toggles": {
         "enabled": "Feature enabled",
-        "botButton": "Button in the bot"
+        "botButton": "Button in the bot",
+        "cabinet": "Item in the cabinet"
       },
       "options": {
         "partnerSection": "Partner section in the cabinet",
@@ -6872,6 +6873,10 @@
         "oauth_discord": {
           "title": "Sign in with Discord",
           "description": "Sign-in button for a Discord account."
+        },
+        "polls": {
+          "title": "Polls",
+          "description": "User polls in the cabinet."
         }
       }
     }

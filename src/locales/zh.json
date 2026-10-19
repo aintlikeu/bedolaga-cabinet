@@ -6425,7 +6425,8 @@
       },
       "toggles": {
         "enabled": "功能已启用",
-        "botButton": "机器人中的按钮"
+        "botButton": "机器人中的按钮",
+        "cabinet": "个人中心中的入口"
       },
       "options": {
         "partnerSection": "个人中心的合作伙伴页面",
@@ -6537,6 +6538,10 @@
         "oauth_discord": {
           "title": "Discord 登录",
           "description": "使用 Discord 账号登录的按钮。"
+        },
+        "polls": {
+          "title": "问卷",
+          "description": "个人中心中的用户问卷。"
         }
       }
     }

@@ -1,3 +1,5 @@
+import type { NavItemId } from '../../../api/navigation';
+
 /**
  * Реестр раздела «Функции»: что можно включить, скрыть или настроить у каждой
  * функции и какими ключами бота это делается. Новых ключей реестр не вводит —
@@ -14,13 +16,17 @@ export type FlagSource =
   /** CABINET_EMAIL_AUTH_ENABLED — строка в БД главнее окружения, поэтому только через свой эндпоинт. */
   | { type: 'emailAuth' }
   /** is_enabled в конфиге колеса удачи. */
-  | { type: 'wheel' };
+  | { type: 'wheel' }
+  /** Видимость пункта в раскладке навигации кабинета (CABINET_NAV_LAYOUT). */
+  | { type: 'nav'; id: NavItemId };
 
 export type ToggleRole =
   /** «Функция работает»: выключение отключает её целиком. */
   | 'enabled'
   /** Отдельная кнопка в боте; функция при этом продолжает работать. */
   | 'botButton'
+  /** Пункт в навигации кабинета; страница остаётся доступной по прямой ссылке. */
+  | 'cabinet'
   /** Дополнительный переключатель со своей подписью (`admin.features.options.<labelKey>`). */
   | 'option';
 
@@ -63,6 +69,7 @@ export interface FeatureDefinition {
 export const FEATURE_GROUPS: FeatureGroupId[] = ['sales', 'marketing', 'support', 'menu', 'login'];
 
 const setting = (key: string): FlagSource => ({ type: 'setting', key });
+const nav = (id: NavItemId): FlagSource => ({ type: 'nav', id });
 
 function oauthProvider(provider: string): FeatureDefinition {
   const prefix = `OAUTH_${provider.toUpperCase()}`;
@@ -132,17 +139,24 @@ export const FEATURES: FeatureDefinition[] = [
       { role: 'enabled', source: { type: 'gift' } },
       // Не зависит от продаж: через эту кнопку же вручную активируют полученный код.
       { role: 'botButton', source: setting('GIFT_BUTTON_VISIBLE') },
+      { role: 'cabinet', source: nav('gift'), dependsOnEnabled: true },
     ],
-    cabinet: 'withFeature',
   },
 
   // ── Маркетинг ──────────────────────────────────────────────────────────────
   {
     id: 'referral',
     group: 'marketing',
-    toggles: [{ role: 'enabled', source: setting('REFERRAL_PROGRAM_ENABLED') }],
-    bot: 'withFeature',
-    cabinet: 'withFeature',
+    toggles: [
+      { role: 'enabled', source: setting('REFERRAL_PROGRAM_ENABLED') },
+      {
+        role: 'botButton',
+        source: setting('REFERRAL_BUTTON_VISIBLE'),
+        dependsOnEnabled: true,
+        mainMenuOnly: true,
+      },
+      { role: 'cabinet', source: nav('referral'), dependsOnEnabled: true },
+    ],
     link: { section: 'users_referral' },
   },
   {
@@ -169,6 +183,7 @@ export const FEATURES: FeatureDefinition[] = [
         dependsOnEnabled: true,
         mainMenuOnly: true,
       },
+      { role: 'cabinet', source: nav('contests'), dependsOnEnabled: true },
     ],
     cabinet: 'whenContent',
     link: { section: 'users_contests' },
@@ -176,9 +191,17 @@ export const FEATURES: FeatureDefinition[] = [
   {
     id: 'wheel',
     group: 'marketing',
-    toggles: [{ role: 'enabled', source: { type: 'wheel' } }],
-    cabinet: 'withFeature',
+    toggles: [
+      { role: 'enabled', source: { type: 'wheel' } },
+      { role: 'cabinet', source: nav('wheel'), dependsOnEnabled: true },
+    ],
     link: { route: '/admin/wheel' },
+  },
+  {
+    id: 'polls',
+    group: 'marketing',
+    toggles: [{ role: 'cabinet', source: nav('polls') }],
+    cabinet: 'whenContent',
   },
   {
     id: 'promocode',
@@ -194,9 +217,11 @@ export const FEATURES: FeatureDefinition[] = [
   {
     id: 'support',
     group: 'support',
-    toggles: [{ role: 'enabled', source: setting('SUPPORT_MENU_ENABLED') }],
+    toggles: [
+      { role: 'enabled', source: setting('SUPPORT_MENU_ENABLED') },
+      { role: 'cabinet', source: nav('support') },
+    ],
     bot: 'withFeature',
-    cabinet: 'always',
     link: { section: 'users_support' },
   },
   {
@@ -211,14 +236,18 @@ export const FEATURES: FeatureDefinition[] = [
   {
     id: 'balance',
     group: 'menu',
-    toggles: [{ role: 'botButton', source: setting('BALANCE_BUTTON_VISIBLE'), mainMenuOnly: true }],
-    cabinet: 'always',
+    toggles: [
+      { role: 'botButton', source: setting('BALANCE_BUTTON_VISIBLE'), mainMenuOnly: true },
+      { role: 'cabinet', source: nav('balance') },
+    ],
   },
   {
     id: 'info',
     group: 'menu',
-    toggles: [{ role: 'botButton', source: setting('INFO_BUTTON_VISIBLE'), mainMenuOnly: true }],
-    cabinet: 'always',
+    toggles: [
+      { role: 'botButton', source: setting('INFO_BUTTON_VISIBLE'), mainMenuOnly: true },
+      { role: 'cabinet', source: nav('info') },
+    ],
   },
   {
     id: 'activate',

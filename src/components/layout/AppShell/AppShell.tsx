@@ -40,6 +40,8 @@ import {
 
 import { MobileBottomNav } from './MobileBottomNav';
 import { isMobileNavScreen, mobileNavItems } from './mobileNavRoutes';
+import { applyNavLayout, isNavItemVisible, useNavLayout } from '@/hooks/useNavLayout';
+import type { NavItemId } from '@/api/navigation';
 import { AppHeader } from './AppHeader';
 import { LogoutButton } from './LogoutButton';
 import { useBackgroundConsumer } from '@/components/backgrounds/BackgroundHost';
@@ -48,6 +50,8 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
+/** Пункт навигации; navId связывает его с раскладкой из админки. */
+type NavLink = { navId: NavItemId; path: string; label: string; icon: typeof HomeIcon };
 export function AppShell({ children }: AppShellProps) {
   const { t } = useTranslation();
   const location = useLocation();
@@ -91,20 +95,45 @@ export function AppShell({ children }: AppShellProps) {
 
   // Нижняя панель живёт только на экранах своих кнопок; на остальных её нет и
   // место под неё не резервируется (data-mobile-nav="off" → --mobile-nav-clearance).
-  const navItems = mobileNavItems({ wheelEnabled, referralEnabled, lite });
+  const navLayout = useNavLayout();
+  const navItems = mobileNavItems({
+    wheelEnabled,
+    referralEnabled,
+    lite,
+    isVisible: (key) => isNavItemVisible(navLayout, key),
+  });
   const showMobileNav = isMobileNavScreen(location.pathname, navItems);
 
   // Desktop navigation — labels always visible (no hover-reveal gimmick)
-  const desktopNav = [
-    { path: '/', label: t('nav.dashboard'), icon: HomeIcon },
-    { path: '/subscriptions', label: t('nav.subscription'), icon: SubscriptionIcon },
-    { path: '/balance', label: t('nav.balance'), icon: CreditCardIcon },
-    ...(referralEnabled ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }] : []),
-    ...(giftEnabled ? [{ path: '/gift', label: t('nav.gift'), icon: GiftIcon }] : []),
-    { path: '/support', label: t('nav.support'), icon: ChatIcon },
-    { path: '/info', label: t('nav.info'), icon: InfoIcon },
-    { path: '/profile', label: t('nav.profile'), icon: UserIcon },
-  ];
+  const desktopNav = applyNavLayout<NavLink>(
+    [
+      { navId: 'dashboard', path: '/', label: t('nav.dashboard'), icon: HomeIcon },
+      {
+        navId: 'subscription',
+        path: '/subscriptions',
+        label: t('nav.subscription'),
+        icon: SubscriptionIcon,
+      },
+      { navId: 'balance', path: '/balance', label: t('nav.balance'), icon: CreditCardIcon },
+      ...(referralEnabled
+        ? [
+            {
+              navId: 'referral' as const,
+              path: '/referral',
+              label: t('nav.referral'),
+              icon: UsersIcon,
+            },
+          ]
+        : []),
+      ...(giftEnabled
+        ? [{ navId: 'gift' as const, path: '/gift', label: t('nav.gift'), icon: GiftIcon }]
+        : []),
+      { navId: 'support', path: '/support', label: t('nav.support'), icon: ChatIcon },
+      { navId: 'info', path: '/info', label: t('nav.info'), icon: InfoIcon },
+      { navId: 'profile', path: '/profile', label: t('nav.profile'), icon: UserIcon },
+    ],
+    navLayout,
+  );
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';

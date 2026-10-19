@@ -3795,7 +3795,8 @@
         "telegramOidcEnabled": "OIDC включён",
         "telegramOidcClientId": "Client ID (ID бота)",
         "telegramOidcClientSecret": "Client Secret",
-        "Gift Button Visible": "Кнопка «Подарить подписку»"
+        "Gift Button Visible": "Кнопка «Подарить подписку»",
+        "Referral Button Visible": "Кнопка «Рефералы»"
       },
       "categories": {
         "CABINET": "Кабинет",
@@ -7387,7 +7388,8 @@
       },
       "toggles": {
         "enabled": "Функция работает",
-        "botButton": "Кнопка в боте"
+        "botButton": "Кнопка в боте",
+        "cabinet": "Пункт в кабинете"
       },
       "options": {
         "partnerSection": "Раздел партнёров в кабинете",
@@ -7499,6 +7501,10 @@
         "oauth_discord": {
           "title": "Вход через Discord",
           "description": "Кнопка входа через аккаунт Discord."
+        },
+        "polls": {
+          "title": "Опросы",
+          "description": "Опросы пользователей в кабинете."
         }
       }
     }

@@ -26,6 +26,11 @@ export interface MobileNavFlags {
    * дублирование «Главного» и «Подписки» и заставило завести простой вид.
    */
   readonly lite?: boolean;
+  /**
+   * Пункт не скрыт раскладкой навигации из админки. Порядок слотов панель держит
+   * свой (см. slotItems), а скрытие уважает: скрытое колесо отдаёт слот рефералке.
+   */
+  readonly isVisible?: (key: MobileNavKey) => boolean;
 }
 
 const DASHBOARD: MobileNavItem = { key: 'dashboard', path: '/' };
@@ -40,15 +45,19 @@ const REFERRAL: MobileNavItem = { key: 'referral', path: '/referral' };
  * навигации, а не в меню шапки. Под колесо и рефералку остаётся один слот:
  * колесо (оператор включил его как бренд-момент) важнее, рефералка уходит в шапку.
  */
-function slotItems({ wheelEnabled, referralEnabled }: MobileNavFlags): readonly MobileNavItem[] {
-  if (wheelEnabled) return [WHEEL];
-  if (referralEnabled) return [REFERRAL];
+function slotItems(
+  { wheelEnabled, referralEnabled }: MobileNavFlags,
+  visible: (item: MobileNavItem) => boolean,
+): readonly MobileNavItem[] {
+  if (wheelEnabled && visible(WHEEL)) return [WHEEL];
+  if (referralEnabled && visible(REFERRAL)) return [REFERRAL];
   return [];
 }
 
 export function mobileNavItems(flags: MobileNavFlags): readonly MobileNavItem[] {
+  const visible = (item: MobileNavItem) => flags.isVisible?.(item.key) ?? true;
   const head = flags.lite ? [DASHBOARD, BALANCE] : [DASHBOARD, SUBSCRIPTION, BALANCE];
-  return [...head, ...slotItems(flags), SUPPORT];
+  return [...head, ...slotItems(flags, visible), SUPPORT].filter(visible);
 }
 
 function withoutTrailingSlash(pathname: string): string {
