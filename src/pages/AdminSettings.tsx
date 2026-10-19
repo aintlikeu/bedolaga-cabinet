@@ -18,6 +18,7 @@ import { AnalyticsTab } from '../components/admin/AnalyticsTab';
 import { BrandingTab } from '../components/admin/BrandingTab';
 import { ButtonsSection } from '../components/admin/botMenu/ButtonsSection';
 import { NavigationEditor } from '../components/admin/navigation/NavigationEditor';
+import { SettingsDraftBar, SettingsDraftProvider } from '../components/admin/settingsDraft';
 import { ThemeTab } from '../components/admin/ThemeTab';
 import { FavoritesTab } from '../components/admin/FavoritesTab';
 import { FeaturesTab } from '../components/admin/features/FeaturesTab';
@@ -238,7 +239,7 @@ export default function AdminSettings() {
   };
 
   return (
-    <>
+    <SettingsDraftProvider>
       {/* Mobile Layout */}
       <div className="space-y-4 pb-4 lg:hidden">
         <SettingsMobileTabs
@@ -255,6 +256,7 @@ export default function AdminSettings() {
         />
         <SettingsSearchResults searchQuery={searchQuery} resultsCount={filteredSettings.length} />
         {renderContent()}
+        <SettingsDraftBar />
       </div>
 
       {/* Desktop Layout - fixed sidebar, scrollable content */}
@@ -324,8 +326,9 @@ export default function AdminSettings() {
 
           <SettingsSearchResults searchQuery={searchQuery} resultsCount={filteredSettings.length} />
           {renderContent()}
+          <SettingsDraftBar className="mt-4" />
         </div>
       </div>
-    </>
+    </SettingsDraftProvider>
   );
 }

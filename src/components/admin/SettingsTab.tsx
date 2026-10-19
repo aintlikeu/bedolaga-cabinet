@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { SettingDefinition, adminSettingsApi } from '../../api/adminSettings';
+import type { SettingDefinition } from '../../api/adminSettings';
+import { DraftSettingRow } from './DraftSettingRow';
 import { QuickToggles } from './QuickToggles';
-import { SettingsTableRow } from './SettingsTableRow';
+import { useSettingsDraft } from './settingsDraft';
+import { settingDisplayName } from './utils';
 
 interface CategoryGroup {
   key: string;
@@ -26,22 +27,7 @@ export function SettingsTab({
   toggleFavorite,
 }: SettingsTabProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-
-  const updateSettingMutation = useMutation({
-    mutationFn: ({ key, value }: { key: string; value: string }) =>
-      adminSettingsApi.updateSetting(key, value),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
-    },
-  });
-
-  const resetSettingMutation = useMutation({
-    mutationFn: (key: string) => adminSettingsApi.resetSetting(key),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
-    },
-  });
+  const draft = useSettingsDraft();
 
   // Search mode: flat list of filtered results
   if (searchQuery.trim()) {
@@ -55,15 +41,11 @@ export function SettingsTab({
     return (
       <div className="overflow-hidden rounded-xl border border-dark-700/40">
         {filteredSettings.map((setting, idx) => (
-          <SettingsTableRow
+          <DraftSettingRow
             key={setting.key}
             setting={setting}
             isFavorite={isFavorite(setting.key)}
             onToggleFavorite={() => toggleFavorite(setting.key)}
-            onUpdate={(value) => updateSettingMutation.mutate({ key: setting.key, value })}
-            onReset={() => resetSettingMutation.mutate(setting.key)}
-            isUpdating={updateSettingMutation.isPending}
-            isResetting={resetSettingMutation.isPending}
             isLast={idx === filteredSettings.length - 1}
           />
         ))}
@@ -85,9 +67,14 @@ export function SettingsTab({
   return (
     <div>
       <QuickToggles
-        settings={allCategorySettings}
-        onUpdate={(key, value) => updateSettingMutation.mutate({ key, value })}
-        disabled={updateSettingMutation.isPending}
+        settings={allCategorySettings.map(draft.withDraft)}
+        onUpdate={(key, value) => {
+          const setting = allCategorySettings.find((item) => item.key === key);
+          if (!setting) return;
+          const label = settingDisplayName(setting, (k, fallback) => t(k, fallback));
+          draft.put({ kind: 'set', key, value, label }, setting.current);
+        }}
+        disabled={draft.isSaving}
       />
       {categories.map((category) => {
         if (category.settings.length === 0) return null;
@@ -101,15 +88,11 @@ export function SettingsTab({
             )}
             <div className="overflow-hidden rounded-xl border border-dark-700/40">
               {category.settings.map((setting, idx) => (
-                <SettingsTableRow
+                <DraftSettingRow
                   key={setting.key}
                   setting={setting}
                   isFavorite={isFavorite(setting.key)}
                   onToggleFavorite={() => toggleFavorite(setting.key)}
-                  onUpdate={(value) => updateSettingMutation.mutate({ key: setting.key, value })}
-                  onReset={() => resetSettingMutation.mutate(setting.key)}
-                  isUpdating={updateSettingMutation.isPending}
-                  isResetting={resetSettingMutation.isPending}
                   isLast={idx === category.settings.length - 1}
                 />
               ))}

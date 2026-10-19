@@ -6726,7 +6726,7 @@
       }
     },
     "features": {
-      "intro": "Turn features on and off and control their buttons in one place. Changes apply immediately; detailed options are behind “Configure”.",
+      "intro": "Turn features on and off and control their buttons in one place. Changes are collected and saved with the button at the bottom; detailed options are behind “Configure”.",
       "search": "Find a feature",
       "empty": "Nothing found",
       "configure": "Configure",
@@ -7013,6 +7013,15 @@
         "featureOff": "feature off",
         "note": "The bottom bar keeps its own five slots: home, subscription, balance, wheel or referrals, support. Hidden items are removed from it; the order does not change."
       }
+    },
+    "settingsDraft": {
+      "region": "Unsaved changes",
+      "count": "Unsaved changes: {{count}}",
+      "unsaved": "unsaved",
+      "willReset": "will be reset",
+      "undo": "Undo change",
+      "saved": "Changes saved: {{count}}",
+      "failed": "Failed to save: {{names}}. Everything else was saved; failed changes stay in the draft."
     }
   },
   "adminUpdates": {

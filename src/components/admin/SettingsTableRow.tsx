@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { CopyIcon } from '@/components/icons';
 import { copyToClipboard } from '@/utils/clipboard';
 import type { SettingDefinition } from '../../api/adminSettings';
+import type { DraftState } from './settingsDraft';
 import { cn } from '../../lib/utils';
 import { StarIcon, LockIcon, RefreshIcon } from './icons';
 import { SettingInput } from './SettingInput';
 import { Toggle } from './Toggle';
-import { formatSettingKey, stripHtml } from './utils';
+import { settingDisplayName, stripHtml } from './utils';
 
 interface SettingsTableRowProps {
   setting: SettingDefinition;
@@ -19,6 +20,8 @@ interface SettingsTableRowProps {
   isResetting?: boolean;
   isLast?: boolean;
   className?: string;
+  /** Несохранённая правка из черновика страницы: подсвечивается и отменяется кнопкой сброса. */
+  draftState?: DraftState;
 }
 
 export function SettingsTableRow({
@@ -31,6 +34,7 @@ export function SettingsTableRow({
   isResetting,
   isLast,
   className,
+  draftState,
 }: SettingsTableRowProps) {
   const { t } = useTranslation();
   const [keyCopied, setKeyCopied] = useState(false);
@@ -53,8 +57,7 @@ export function SettingsTableRow({
     copiedTimer.current = setTimeout(() => setKeyCopied(false), 1500);
   };
 
-  const formattedKey = formatSettingKey(setting.name || setting.key);
-  const displayName = t(`admin.settings.settingNames.${formattedKey}`, formattedKey);
+  const displayName = settingDisplayName(setting, (key, fallback) => t(key, fallback));
   const description = setting.hint?.description ? stripHtml(setting.hint.description) : null;
   const isModified = setting.has_override;
   // Значение из .env или кода, которое переопределила админка. У секретов там маска — не показываем.
@@ -105,6 +108,16 @@ export function SettingsTableRow({
           {/* Name + badges row */}
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-[13px] font-medium text-dark-100">{displayName}</span>
+
+            {draftState && (
+              <span className="rounded-full bg-accent-500/20 px-1.5 py-0.5 text-[10px] font-medium leading-none text-accent-400">
+                {t(
+                  draftState === 'reset'
+                    ? 'admin.settingsDraft.willReset'
+                    : 'admin.settingsDraft.unsaved',
+                )}
+              </span>
+            )}
 
             {/* Одна пометка вместо «Изменено» + «БД»: они всегда появлялись вместе. */}
             {isModified && (
@@ -188,14 +201,14 @@ export function SettingsTableRow({
             </div>
           )}
 
-          {/* Reset button -- hover-reveal when has_override */}
-          {isModified && !locked && (
+          {/* Reset button -- hover-reveal when has_override; с правкой в черновике — отменяет её */}
+          {(isModified || draftState) && !locked && (
             <button
               onClick={onReset}
               disabled={isResetting}
               className="flex-shrink-0 rounded-lg p-1.5 text-dark-500 opacity-0 transition-all hover:bg-dark-700 hover:text-dark-200 disabled:opacity-50 group-focus-within:opacity-100 group-hover:opacity-100 max-lg:opacity-100 [@media(hover:none)]:opacity-100"
-              title={t('admin.settings.reset')}
-              aria-label={t('admin.settings.reset')}
+              title={draftState ? t('admin.settingsDraft.undo') : t('admin.settings.reset')}
+              aria-label={draftState ? t('admin.settingsDraft.undo') : t('admin.settings.reset')}
             >
               <RefreshIcon />
             </button>
