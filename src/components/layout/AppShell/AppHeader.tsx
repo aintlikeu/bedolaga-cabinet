@@ -8,6 +8,8 @@ import { displayName } from '@/utils/displayName';
 import { useShallow } from 'zustand/shallow';
 import { useTheme } from '@/hooks/useTheme';
 import { useUserAvatar } from '@/hooks/useUserAvatar';
+import { applyNavLayout, useNavLayout } from '@/hooks/useNavLayout';
+import type { NavItemId } from '@/api/navigation';
 import { usePlatform } from '@/platform';
 import {
   brandingApi,
@@ -66,6 +68,8 @@ interface AppHeaderProps {
   giftEnabled?: boolean;
 }
 
+/** Пункт навигации; navId связывает его с раскладкой из админки. */
+type NavLink = { navId: NavItemId; path: string; label: string; icon: typeof HomeIcon };
 export function AppHeader({
   mobileMenuOpen,
   setMobileMenuOpen,
@@ -82,6 +86,7 @@ export function AppHeader({
   giftEnabled,
 }: AppHeaderProps) {
   const { t } = useTranslation();
+  const navLayout = useNavLayout();
   const location = useLocation();
   const { user, logout, isAdmin } = useAuthStore(
     useShallow((state) => ({ user: state.user, logout: state.logout, isAdmin: state.isAdmin })),
@@ -148,18 +153,50 @@ export function AppHeader({
   };
   const isAdminActive = () => location.pathname.startsWith('/admin');
 
-  const navItems = [
-    { path: '/', label: t('nav.dashboard'), icon: HomeIcon },
-    { path: '/subscriptions', label: t('nav.subscription'), icon: SubscriptionIcon },
-    { path: '/balance', label: t('nav.balance'), icon: WalletIcon },
-    ...(referralEnabled ? [{ path: '/referral', label: t('nav.referral'), icon: UsersIcon }] : []),
-    { path: '/support', label: t('nav.support'), icon: ChatIcon },
-    ...(hasContests ? [{ path: '/contests', label: t('nav.contests'), icon: GamepadIcon }] : []),
-    ...(hasPolls ? [{ path: '/polls', label: t('nav.polls'), icon: ClipboardIcon }] : []),
-    ...(wheelEnabled ? [{ path: '/wheel', label: t('nav.wheel'), icon: WheelIcon }] : []),
-    ...(giftEnabled ? [{ path: '/gift', label: t('nav.gift'), icon: GiftIcon }] : []),
-    { path: '/info', label: t('nav.info'), icon: InfoIcon },
-  ];
+  const navItems = applyNavLayout<NavLink>(
+    [
+      { navId: 'dashboard', path: '/', label: t('nav.dashboard'), icon: HomeIcon },
+      {
+        navId: 'subscription',
+        path: '/subscriptions',
+        label: t('nav.subscription'),
+        icon: SubscriptionIcon,
+      },
+      { navId: 'balance', path: '/balance', label: t('nav.balance'), icon: WalletIcon },
+      ...(referralEnabled
+        ? [
+            {
+              navId: 'referral' as const,
+              path: '/referral',
+              label: t('nav.referral'),
+              icon: UsersIcon,
+            },
+          ]
+        : []),
+      { navId: 'support', path: '/support', label: t('nav.support'), icon: ChatIcon },
+      ...(hasContests
+        ? [
+            {
+              navId: 'contests' as const,
+              path: '/contests',
+              label: t('nav.contests'),
+              icon: GamepadIcon,
+            },
+          ]
+        : []),
+      ...(hasPolls
+        ? [{ navId: 'polls' as const, path: '/polls', label: t('nav.polls'), icon: ClipboardIcon }]
+        : []),
+      ...(wheelEnabled
+        ? [{ navId: 'wheel' as const, path: '/wheel', label: t('nav.wheel'), icon: WheelIcon }]
+        : []),
+      ...(giftEnabled
+        ? [{ navId: 'gift' as const, path: '/gift', label: t('nav.gift'), icon: GiftIcon }]
+        : []),
+      { navId: 'info', path: '/info', label: t('nav.info'), icon: InfoIcon },
+    ],
+    navLayout,
+  );
 
   return (
     <>

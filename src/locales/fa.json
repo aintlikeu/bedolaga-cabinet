@@ -6480,7 +6480,8 @@
       },
       "toggles": {
         "enabled": "قابلیت فعال است",
-        "botButton": "دکمه در ربات"
+        "botButton": "دکمه در ربات",
+        "cabinet": "مورد در کابینت"
       },
       "options": {
         "partnerSection": "بخش همکاران در کابینت",
@@ -6592,6 +6593,10 @@
         "oauth_discord": {
           "title": "ورود با Discord",
           "description": "دکمه ورود با حساب Discord."
+        },
+        "polls": {
+          "title": "نظرسنجی‌ها",
+          "description": "نظرسنجی کاربران در کابینت."
         }
       }
     }

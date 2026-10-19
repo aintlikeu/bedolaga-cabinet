@@ -41,6 +41,10 @@ const backend = vi.hoisted(() => ({
   giftUpdates: [] as boolean[],
   /** Держит PUT настройки «в полёте», пока тест его не отпустит. */
   hold: null as null | (() => void),
+  nav: { items: [] as { id: string; visible: boolean }[] },
+  navPuts: [] as { id: string; visible: boolean }[][],
+  /** Ответы на PUT раскладки, отпускаемые тестом по одному. */
+  navRelease: [] as (() => void)[],
 }));
 
 vi.mock('@/api/adminSettings', () => ({
@@ -81,6 +85,25 @@ vi.mock('@/api/branding', () => ({
   },
 }));
 
+vi.mock('@/api/navigation', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/navigation')>();
+  return {
+    ...actual,
+    navigationApi: {
+      getLayout: () => Promise.resolve(structuredClone(backend.nav)),
+      updateLayout: (layout: { items: { id: string; visible: boolean }[] }) => {
+        backend.navPuts.push(structuredClone(layout.items));
+        return new Promise((resolve) => {
+          backend.navRelease.push(() => {
+            backend.nav = structuredClone(layout);
+            resolve(structuredClone(layout));
+          });
+        });
+      },
+    },
+  };
+});
+
 vi.mock('@/api/wheel', () => ({
   adminWheelApi: {
     getConfig: () => Promise.resolve({ is_enabled: false }),
@@ -105,6 +128,14 @@ beforeEach(() => {
   backend.updates = [];
   backend.giftUpdates = [];
   backend.hold = null;
+  backend.nav = {
+    items: ['dashboard', 'subscription', 'balance', 'support', 'info', 'profile'].map((id) => ({
+      id,
+      visible: true,
+    })),
+  };
+  backend.navPuts = [];
+  backend.navRelease = [];
 });
 afterEach(cleanup);
 
@@ -189,7 +220,8 @@ describe('FeaturesTab', () => {
 
   it('кнопка выключенной функции помечена как недействующая', async () => {
     await renderTab();
-    expect(within(card('contests')).getByText(f.hints.dependsOnEnabled)).toBeTruthy();
+    // Кнопка в боте и пункт в кабинете — оба ждут включения функции.
+    expect(within(card('contests')).getAllByText(f.hints.dependsOnEnabled)).toHaveLength(2);
   });
 
   it('включённый вход без ключей — «Не настроено» с подсказкой', async () => {
@@ -228,5 +260,37 @@ describe('FeaturesTab', () => {
 
     expect(screen.getByRole('heading', { name: f.items.wheel.title })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: f.items.gifts.title })).toBeNull();
+  });
+
+  it('скрывает пункт навигации кабинета, отправляя раскладку целиком', async () => {
+    await renderTab();
+    const toggle = switchIn('balance', f.toggles.cabinet);
+    await vi.waitFor(() => expect((toggle as HTMLButtonElement).disabled).toBe(false));
+
+    fireEvent.click(toggle);
+    await vi.waitFor(() => expect(backend.navPuts).toHaveLength(1));
+    backend.navRelease.shift()?.();
+
+    const sent = backend.navPuts[0];
+    expect(sent.map((item) => item.id)).toEqual(backend.nav.items.map((item) => item.id));
+    expect(sent.find((item) => item.id === 'balance')?.visible).toBe(false);
+    expect(sent.filter((item) => !item.visible)).toHaveLength(1);
+  });
+
+  it('две быстрые правки навигации подряд не затирают друг друга', async () => {
+    await renderTab();
+    const balance = switchIn('balance', f.toggles.cabinet);
+    const info = switchIn('info', f.toggles.cabinet);
+    await vi.waitFor(() => expect((info as HTMLButtonElement).disabled).toBe(false));
+
+    fireEvent.click(balance);
+    fireEvent.click(info);
+    await vi.waitFor(() => expect(backend.navPuts).toHaveLength(2));
+    backend.navRelease.shift()?.();
+    backend.navRelease.shift()?.();
+
+    // Второй PUT несёт обе правки: он посчитан от уже обновлённого кэша.
+    const hidden = backend.navPuts[1].filter((item) => !item.visible).map((item) => item.id);
+    expect(hidden.sort()).toEqual(['balance', 'info']);
   });
 });
