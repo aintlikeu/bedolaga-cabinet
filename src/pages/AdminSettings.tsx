@@ -205,7 +205,7 @@ export default function AdminSettings() {
       case 'analytics':
         return <AnalyticsTab />;
       case 'branding':
-        return <BrandingTab accentColor={themeColors?.accent} />;
+        return <BrandingTab accentColor={themeColors?.accent} onOpenSection={setActiveSection} />;
       case 'theme':
         return <ThemeTab />;
       case 'buttons':

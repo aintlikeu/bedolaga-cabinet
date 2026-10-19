@@ -10,9 +10,11 @@ import { BackgroundEditor } from './BackgroundEditor';
 
 interface BrandingTabProps {
   accentColor?: string;
+  /** Открыть раздел настроек (подарки и вход по email переехали в «Функции»). */
+  onOpenSection?: (section: string) => void;
 }
 
-export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
+export function BrandingTab({ accentColor = '#3b82f6', onOpenSection }: BrandingTabProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,16 +43,6 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
   const { data: liteModeSettings } = useQuery({
     queryKey: LITE_MODE_QUERY_KEY,
     queryFn: brandingApi.getLiteModeEnabled,
-  });
-
-  const { data: emailAuthSettings } = useQuery({
-    queryKey: ['email-auth-enabled'],
-    queryFn: brandingApi.getEmailAuthEnabled,
-  });
-
-  const { data: giftSettings } = useQuery({
-    queryKey: ['gift-enabled'],
-    queryFn: brandingApi.getGiftEnabled,
   });
 
   const { data: footerEnabled } = useQuery({
@@ -99,20 +91,6 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
       // прежний экран до следующего ответа сервера и решит, что не сработало.
       writeLiteModeHint(data.enabled);
       queryClient.invalidateQueries({ queryKey: LITE_MODE_QUERY_KEY });
-    },
-  });
-
-  const updateEmailAuthMutation = useMutation({
-    mutationFn: (enabled: boolean) => brandingApi.updateEmailAuthEnabled(enabled),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['email-auth-enabled'] });
-    },
-  });
-
-  const updateGiftMutation = useMutation({
-    mutationFn: (enabled: boolean) => brandingApi.updateGiftEnabled(enabled),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['gift-enabled'] });
     },
   });
 
@@ -349,28 +327,18 @@ export function BrandingTab({ accentColor = '#3b82f6' }: BrandingTabProps) {
             />
           </div>
 
-          <div className="flex items-center justify-between rounded-xl bg-dark-700/30 p-4">
-            <div>
-              <span className="font-medium text-dark-100">{t('admin.settings.emailAuth')}</span>
-              <p className="text-sm text-dark-400">{t('admin.settings.emailAuthDesc')}</p>
-            </div>
-            <Toggle
-              checked={emailAuthSettings?.enabled ?? true}
-              onChange={() => updateEmailAuthMutation.mutate(!(emailAuthSettings?.enabled ?? true))}
-              disabled={updateEmailAuthMutation.isPending}
-            />
-          </div>
-
-          <div className="flex items-center justify-between rounded-xl bg-dark-700/30 p-4">
-            <div>
-              <span className="font-medium text-dark-100">{t('admin.settings.giftEnabled')}</span>
-              <p className="text-sm text-dark-400">{t('admin.settings.giftEnabledDesc')}</p>
-            </div>
-            <Toggle
-              checked={giftSettings?.enabled ?? false}
-              onChange={() => updateGiftMutation.mutate(!(giftSettings?.enabled ?? false))}
-              disabled={updateGiftMutation.isPending}
-            />
+          {/* Вход по email и подарки — функции, а не оформление: их переключатели в «Функциях». */}
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-dark-700/30 p-4">
+            <p className="text-sm text-dark-400">{t('admin.settings.movedToFeatures')}</p>
+            {onOpenSection && (
+              <button
+                type="button"
+                onClick={() => onOpenSection('features')}
+                className="shrink-0 text-sm font-medium text-accent-400 transition-colors hover:text-accent-300"
+              >
+                {t('admin.settings.openFeatures')}
+              </button>
+            )}
           </div>
 
           <div className="flex items-center justify-between rounded-xl bg-dark-700/30 p-4">
