@@ -16,7 +16,7 @@ import {
 import { usePlatform } from '../platform/hooks/usePlatform';
 import { AnalyticsTab } from '../components/admin/AnalyticsTab';
 import { BrandingTab } from '../components/admin/BrandingTab';
-import { MenuEditorTab } from '../components/admin/MenuEditorTab';
+import { ButtonsSection } from '../components/admin/botMenu/ButtonsSection';
 import { ThemeTab } from '../components/admin/ThemeTab';
 import { FavoritesTab } from '../components/admin/FavoritesTab';
 import { FeaturesTab } from '../components/admin/features/FeaturesTab';
@@ -207,7 +207,7 @@ export default function AdminSettings() {
       case 'theme':
         return <ThemeTab />;
       case 'buttons':
-        return <MenuEditorTab onOpenSection={setActiveSection} />;
+        return <ButtonsSection onOpenSection={setActiveSection} />;
       case 'favorites':
         return (
           <FavoritesTab
