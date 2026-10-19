@@ -5,6 +5,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ruLocale from '@/locales/ru.json';
 import { ToastProvider } from '@/components/Toast';
 import { PlatformProvider } from '@/platform/PlatformProvider';
+import { useAuthStore } from '@/store/auth';
+import type { User } from '@/types';
 import type { SettingDefinition } from '../../api/adminSettings';
 
 /**
@@ -54,6 +56,7 @@ beforeEach(() => {
   api.updates = [];
   api.resets = [];
   window.sessionStorage.clear();
+  useAuthStore.setState({ user: { id: 1 } as User });
 });
 afterEach(cleanup);
 
@@ -152,6 +155,67 @@ describe('черновик строк настроек', () => {
     );
     await renderRows([setting({ key: 'INFO_BUTTON_VISIBLE' })]);
 
+    expect(screen.queryByRole('region', { name: d.region })).toBeNull();
+  });
+
+  it('секрет не попадает в sessionStorage, остальные правки — да', async () => {
+    const { SettingsDraftProvider, useSettingsDraft } = await import('./settingsDraft');
+    function PutSecret() {
+      const draft = useSettingsDraft();
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            draft.put(
+              {
+                kind: 'set',
+                key: 'LAVA_SECRET_KEY',
+                value: 'sk-live-123',
+                label: 'k',
+                secret: true,
+              },
+              '••••',
+            );
+            draft.put(
+              { kind: 'set', key: 'INFO_BUTTON_VISIBLE', value: 'false', label: 'i' },
+              true,
+            );
+          }}
+        >
+          put
+        </button>
+      );
+    }
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ToastProvider>
+          <PlatformProvider>
+            <SettingsDraftProvider>
+              <PutSecret />
+            </SettingsDraftProvider>
+          </PlatformProvider>
+        </ToastProvider>
+      </QueryClientProvider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'put' }));
+    const stored = () => window.sessionStorage.getItem('admin-settings-draft') ?? '';
+
+    await vi.waitFor(() => expect(stored()).toContain('INFO_BUTTON_VISIBLE'));
+    expect(stored()).not.toContain('sk-live-123');
+    expect(stored()).not.toContain('LAVA_SECRET_KEY');
+  });
+
+  it('черновик другого админа в той же вкладке не подхватывается', async () => {
+    window.sessionStorage.setItem(
+      'admin-settings-draft',
+      JSON.stringify({
+        userId: 2,
+        changes: [{ kind: 'set', key: 'INFO_BUTTON_VISIBLE', value: 'false', label: 'x' }],
+      }),
+    );
+    await renderRows([setting({ key: 'INFO_BUTTON_VISIBLE' })]);
+
+    expect(screen.getByRole('switch').getAttribute('aria-checked')).toBe('true');
     expect(screen.queryByRole('region', { name: d.region })).toBeNull();
   });
 });

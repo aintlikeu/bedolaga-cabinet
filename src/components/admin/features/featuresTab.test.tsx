@@ -6,6 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ruLocale from '@/locales/ru.json';
 import { ToastProvider } from '@/components/Toast';
 import { PlatformProvider } from '@/platform/PlatformProvider';
+import { useAuthStore } from '@/store/auth';
+import type { User } from '@/types';
 
 /**
  * Раздел «Функции»: переключатели пишут в те же ключи, что дерево настроек,
@@ -135,6 +137,7 @@ beforeEach(() => {
   backend.navPuts = [];
   backend.failKeys = new Set();
   window.sessionStorage.clear();
+  useAuthStore.setState({ user: { id: 1 } as User });
 });
 afterEach(cleanup);
 
