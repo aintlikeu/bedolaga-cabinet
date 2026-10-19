@@ -3322,7 +3322,8 @@
       "botStartVideoActive": "Video is set",
       "botStartVideoNone": "No video — the menu uses the logo image",
       "botStartVideoError": "Could not upload the video",
-      "features": "Features"
+      "features": "Features",
+      "navigation": "Cabinet navigation"
     },
     "graceAccess": {
       "title": "Grace access",
@@ -6981,6 +6982,27 @@
           "title": "Language",
           "hint": "If language selection is on"
         }
+      }
+    },
+    "navEditor": {
+      "intro": "Order and visibility of the web cabinet menu items. A hidden item disappears from the menu, but its page stays reachable by link.",
+      "alwaysVisible": "Always visible: without it users cannot reach their subscription or sign out",
+      "hints": {
+        "feature": "Shown only when the feature is on",
+        "content": "Shown only when there are active entries"
+      },
+      "saved": "Navigation saved",
+      "resetOrder": "Default order",
+      "resetConfirm": "Restore the default item order? Visibility stays the same; you still need to save.",
+      "moveUp": "up",
+      "moveDown": "down",
+      "visible": "show",
+      "preview": {
+        "title": "Preview",
+        "menu": "Cabinet menu",
+        "bottomBar": "Mobile bottom bar",
+        "featureOff": "feature off",
+        "note": "The bottom bar keeps its own five slots: home, subscription, balance, wheel or referrals, support. Hidden items are removed from it; the order does not change."
       }
     }
   },

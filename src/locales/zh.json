@@ -2419,7 +2419,8 @@
       "botStartVideoActive": "已设置视频",
       "botStartVideoNone": "未设置视频 — 菜单使用 logo 图片",
       "botStartVideoError": "视频上传失败",
-      "features": "功能"
+      "features": "功能",
+      "navigation": "个人中心导航"
     },
     "graceAccess": {
       "title": "宽限访问",
@@ -6646,6 +6647,27 @@
           "title": "语言",
           "hint": "开启语言选择时"
         }
+      }
+    },
+    "navEditor": {
+      "intro": "网页个人中心菜单项的顺序和可见性。隐藏的菜单项不再显示，但页面仍可通过链接访问。",
+      "alwaysVisible": "始终显示：没有它用户无法进入订阅或退出登录",
+      "hints": {
+        "feature": "仅在功能开启时显示",
+        "content": "仅在有进行中的内容时显示"
+      },
+      "saved": "导航已保存",
+      "resetOrder": "默认顺序",
+      "resetConfirm": "恢复默认菜单顺序？可见性不变，仍需保存。",
+      "moveUp": "上移",
+      "moveDown": "下移",
+      "visible": "显示",
+      "preview": {
+        "title": "预览",
+        "menu": "个人中心菜单",
+        "bottomBar": "手机底部导航栏",
+        "featureOff": "功能已关闭",
+        "note": "底部导航栏固定五个位置：首页、订阅、余额、转盘或推荐、支持。隐藏的项会被移除，顺序不变。"
       }
     }
   },
