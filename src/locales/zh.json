@@ -6436,7 +6436,8 @@
       },
       "options": {
         "partnerSection": "个人中心的合作伙伴页面",
-        "withdrawals": "提取收益"
+        "withdrawals": "提取收益",
+        "balanceDisplay": "显示余额"
       },
       "hints": {
         "unavailable": "无权限或数据加载失败",
@@ -6512,6 +6513,10 @@
         "language": {
           "title": "语言选择",
           "description": "用户可以切换界面语言。"
+        },
+        "balance_display": {
+          "title": "机器人中显示余额",
+          "description": "主菜单和订阅页面中的余额金额，以及“余额”按钮和页面。服务免费期间可关闭：余额本身、扣款和支付页面不受影响。"
         },
         "balance": {
           "title": "“余额”按钮",

@@ -6771,7 +6771,8 @@
       },
       "options": {
         "partnerSection": "Partner section in the cabinet",
-        "withdrawals": "Withdrawal of earnings"
+        "withdrawals": "Withdrawal of earnings",
+        "balanceDisplay": "Show balance"
       },
       "hints": {
         "unavailable": "No access or the data failed to load",
@@ -6847,6 +6848,10 @@
         "language": {
           "title": "Language selection",
           "description": "Users can change the interface language."
+        },
+        "balance_display": {
+          "title": "Balance in the bot",
+          "description": "Balance amount in the main menu and on the subscription screen, plus the «Balance» button and section. Turn off while the service is free: the balance itself, charges and payment screens are unchanged."
         },
         "balance": {
           "title": "“Balance” button",
