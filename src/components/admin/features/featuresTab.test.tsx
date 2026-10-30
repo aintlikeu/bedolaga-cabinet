@@ -121,6 +121,7 @@ beforeEach(() => {
     { key: 'INFO_BUTTON_VISIBLE', current: true },
     { key: 'GIFT_BUTTON_VISIBLE', current: true },
     { key: 'BALANCE_DISPLAY_ENABLED', current: true },
+    { key: 'SUBSCRIPTION_SALES_BUTTONS_VISIBLE', current: true },
     { key: 'OAUTH_GOOGLE_ENABLED', current: true },
     { key: 'OAUTH_GOOGLE_CLIENT_ID', current: '' },
     { key: 'OAUTH_GOOGLE_CLIENT_SECRET', current: '' },
@@ -257,6 +258,22 @@ describe('FeaturesTab', () => {
 
     await vi.waitFor(() =>
       expect(backend.updates).toEqual([{ key: 'BALANCE_DISPLAY_ENABLED', value: 'false' }]),
+    );
+  });
+
+  it('кнопки покупки и продления в боте — отдельный пункт со своей настройкой', async () => {
+    await renderTab();
+    const toggle = switchIn('sales_buttons', f.options.salesButtons);
+    await ready(toggle);
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+
+    fireEvent.click(toggle);
+    saveDraft();
+
+    await vi.waitFor(() =>
+      expect(backend.updates).toEqual([
+        { key: 'SUBSCRIPTION_SALES_BUTTONS_VISIBLE', value: 'false' },
+      ]),
     );
   });
 

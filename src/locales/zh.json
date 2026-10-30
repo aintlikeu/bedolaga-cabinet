@@ -6437,7 +6437,8 @@
       "options": {
         "partnerSection": "个人中心的合作伙伴页面",
         "withdrawals": "提取收益",
-        "balanceDisplay": "显示余额"
+        "balanceDisplay": "显示余额",
+        "salesButtons": "显示购买和续订按钮"
       },
       "hints": {
         "unavailable": "无权限或数据加载失败",
@@ -6465,6 +6466,10 @@
         "trial": {
           "title": "试用期",
           "description": "新用户的免费访问。时长大于零且未对所有人禁用时开启。"
+        },
+        "sales_buttons": {
+          "title": "机器人中的购买和续订按钮",
+          "description": "订阅页面上的“续订”“自动付款”“套餐”和“购买套餐”，以及菜单和到期通知中的“续订”。旧消息中被隐藏的按钮会提示“不可用”。主菜单中的“购买订阅”在菜单布局标签中设置。"
         },
         "simple_subscription": {
           "title": "简易订阅",

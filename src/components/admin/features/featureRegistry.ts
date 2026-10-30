@@ -100,6 +100,18 @@ export const FEATURES: FeatureDefinition[] = [
     link: { section: 'subs_trial' },
   },
   {
+    // Кнопки «Продлить», «Автоплатёж», «Тариф» на экране подписки и «Продлить» в уведомлениях бота.
+    id: 'sales_buttons',
+    group: 'sales',
+    toggles: [
+      {
+        role: 'option',
+        source: setting('SUBSCRIPTION_SALES_BUTTONS_VISIBLE'),
+        labelKey: 'salesButtons',
+      },
+    ],
+  },
+  {
     id: 'simple_subscription',
     group: 'sales',
     toggles: [{ role: 'enabled', source: setting('SIMPLE_SUBSCRIPTION_ENABLED') }],
