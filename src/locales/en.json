@@ -6772,7 +6772,8 @@
       "options": {
         "partnerSection": "Partner section in the cabinet",
         "withdrawals": "Withdrawal of earnings",
-        "balanceDisplay": "Show balance"
+        "balanceDisplay": "Show balance",
+        "salesButtons": "Show purchase and renewal buttons"
       },
       "hints": {
         "unavailable": "No access or the data failed to load",
@@ -6800,6 +6801,10 @@
         "trial": {
           "title": "Trial",
           "description": "Free access for new users. On when the duration is above zero and the trial is not disabled for everyone."
+        },
+        "sales_buttons": {
+          "title": "Purchase and renewal buttons in the bot",
+          "description": "«Renew», «Autopay», «Tariff» and «Buy tariff» on the subscription screen, «Renew» in the menu and expiry notifications. Hidden buttons in old messages reply «unavailable». «Buy subscription» in the main menu is set in the menu layout tab."
         },
         "simple_subscription": {
           "title": "Simple subscription",
