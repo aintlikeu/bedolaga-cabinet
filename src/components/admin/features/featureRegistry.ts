@@ -234,6 +234,14 @@ export const FEATURES: FeatureDefinition[] = [
 
   // ── Кнопки главного меню бота (режим «Полное меню») ────────────────────────
   {
+    // Действует в любом режиме меню: строка в меню, экран подписки, кнопка и раздел.
+    id: 'balance_display',
+    group: 'menu',
+    toggles: [
+      { role: 'option', source: setting('BALANCE_DISPLAY_ENABLED'), labelKey: 'balanceDisplay' },
+    ],
+  },
+  {
     id: 'balance',
     group: 'menu',
     toggles: [

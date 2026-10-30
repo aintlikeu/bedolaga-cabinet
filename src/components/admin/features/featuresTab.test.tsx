@@ -120,6 +120,7 @@ beforeEach(() => {
     { key: 'BALANCE_BUTTON_VISIBLE', current: true, env_locked: true },
     { key: 'INFO_BUTTON_VISIBLE', current: true },
     { key: 'GIFT_BUTTON_VISIBLE', current: true },
+    { key: 'BALANCE_DISPLAY_ENABLED', current: true },
     { key: 'OAUTH_GOOGLE_ENABLED', current: true },
     { key: 'OAUTH_GOOGLE_CLIENT_ID', current: '' },
     { key: 'OAUTH_GOOGLE_CLIENT_SECRET', current: '' },
@@ -243,6 +244,20 @@ describe('FeaturesTab', () => {
 
     await vi.waitFor(() => expect(backend.giftUpdates).toEqual([true]));
     expect(backend.updates).toEqual([{ key: 'GIFT_BUTTON_VISIBLE', value: 'false' }]);
+  });
+
+  it('показ баланса в боте — отдельный пункт со своей настройкой', async () => {
+    await renderTab();
+    const toggle = switchIn('balance_display', f.options.balanceDisplay);
+    await ready(toggle);
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+
+    fireEvent.click(toggle);
+    saveDraft();
+
+    await vi.waitFor(() =>
+      expect(backend.updates).toEqual([{ key: 'BALANCE_DISPLAY_ENABLED', value: 'false' }]),
+    );
   });
 
   it('пока идёт сохранение, переключатели заблокированы', async () => {
