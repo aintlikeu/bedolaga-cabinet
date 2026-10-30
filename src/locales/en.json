@@ -363,10 +363,10 @@
       "dismiss": "Dismiss"
     },
     "trialOffer": {
-      "freeTitle": "Free Trial Available",
-      "paidTitle": "Trial Subscription",
+      "freeTitle": "Free Subscription Available",
+      "paidTitle": "Subscription",
       "freeDesc": "Try our VPN for free, no commitment required",
-      "paidDesc": "Get started with a trial subscription"
+      "paidDesc": "Activate your VPN subscription"
     },
     "stats": {
       "balance": "Balance",
@@ -487,8 +487,8 @@
     "month": "mo",
     "insufficientBalance": "Insufficient balance. Missing {{missing}} ₽",
     "trial": {
-      "title": "Free Trial",
-      "titlePaid": "Trial Subscription",
+      "title": "Free Subscription",
+      "titlePaid": "Subscription",
       "description": "Try our VPN service!",
       "days": "days",
       "days_one": "{{count}} day",
@@ -497,11 +497,11 @@
       "devices_one": "{{count}} device",
       "devices_other": "{{count}} devices",
       "price": "Price",
-      "activate": "Activate Free",
+      "activate": "Activate Subscription",
       "payAndActivate": "Pay & Activate",
       "topUpToActivate": "Top Up Balance",
       "insufficientBalance": "Top up your balance to activate",
-      "unavailable": "Trial is not available"
+      "unavailable": "Subscription is not available"
     },
     "trialBanner": {
       "title": "Trial period active",
