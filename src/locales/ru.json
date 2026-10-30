@@ -371,10 +371,10 @@
       "dismiss": "Закрыть"
     },
     "trialOffer": {
-      "freeTitle": "Бесплатный пробный период",
-      "paidTitle": "Пробная подписка",
-      "freeDesc": "Попробуйте наш VPN бесплатно: без обязательств",
-      "paidDesc": "Начните с пробной подписки"
+      "freeTitle": "Бесплатная подписка",
+      "paidTitle": "Подписка",
+      "freeDesc": "Подключите VPN бесплатно: без обязательств",
+      "paidDesc": "Активируйте подписку на VPN"
     },
     "stats": {
       "balance": "Баланс",
@@ -505,9 +505,9 @@
     "month": "мес",
     "insufficientBalance": "Недостаточно средств. Не хватает {{missing}} ₽",
     "trial": {
-      "title": "Бесплатный пробный период",
-      "titlePaid": "Пробная подписка",
-      "description": "Попробуйте наш VPN сервис!",
+      "title": "Бесплатная подписка",
+      "titlePaid": "Подписка",
+      "description": "Подключите наш VPN сервис!",
       "days": "дней",
       "days_one": "{{count}} день",
       "days_few": "{{count}} дня",
@@ -517,11 +517,11 @@
       "devices_few": "{{count}} устройства",
       "devices_many": "{{count}} устройств",
       "price": "Стоимость",
-      "activate": "Активировать бесплатно",
+      "activate": "Активировать подписку",
       "payAndActivate": "Оплатить с баланса",
       "topUpToActivate": "Пополнить баланс",
       "insufficientBalance": "Пополните баланс для активации",
-      "unavailable": "Пробный период недоступен"
+      "unavailable": "Подписка недоступна"
     },
     "trialBanner": {
       "title": "Пробный период активен",
