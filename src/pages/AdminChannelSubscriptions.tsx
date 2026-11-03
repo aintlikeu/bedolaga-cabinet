@@ -11,6 +11,11 @@ import {
 } from '../api/adminChannels';
 import { adminSettingsApi, type SettingDefinition } from '../api/adminSettings';
 import { AdminBackButton } from '../components/admin';
+import {
+  CHANNEL_REQUIRED_SINCE_KEY,
+  ChannelRequiredSinceSetting,
+  parseRequiredSince,
+} from '../components/admin/ChannelRequiredSinceSetting';
 import { Toggle } from '../components/admin/Toggle';
 import { PageSkeleton, Skeleton, SkeletonGroup } from '@/components/ui/skeleton';
 import {
@@ -82,8 +87,21 @@ function GlobalSettingsSection() {
     return setting.current === true || setting.current === 'true';
   };
 
-  const handleToggleSetting = (key: string) => {
+  const { confirm: confirmDialog } = useNativeDialog();
+
+  const handleToggleSetting = async (key: string) => {
     const current = isSettingEnabled(key);
+    // vpn1: включение без даты отсечки проверит и старых пользователей — спросить
+    const since = getSettingByKey(CHANNEL_REQUIRED_SINCE_KEY);
+    if (
+      key === 'CHANNEL_IS_REQUIRED_SUB' &&
+      !current &&
+      since &&
+      !parseRequiredSince(since.current) &&
+      !(await confirmDialog(t('admin.channelSubscriptions.requiredSince.confirmEnableWithoutDate')))
+    ) {
+      return;
+    }
     updateSettingMutation.mutate({ key, value: !current });
   };
 
@@ -132,6 +150,8 @@ function GlobalSettingsSection() {
           );
         })}
       </div>
+
+      <ChannelRequiredSinceSetting />
     </div>
   );
 }

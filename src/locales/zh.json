@@ -2194,6 +2194,25 @@
         "requiredForAll": "对所有用户强制",
         "requiredForAllDesc": "对所有用户（包括付费用户）检查频道订阅"
       },
+      "requiredSince": {
+        "title": "不检查老用户",
+        "desc": "在此日期之前已加入机器人的用户不检查订阅，退出频道也不会失去 VPN。新用户照常检查。",
+        "current": "生效时间：{{date}}",
+        "notSet": "未设置日期 — 检查所有用户",
+        "warnActiveWithoutDate": "订阅已是必需的，未设置日期时检查适用于所有人，包括老用户。",
+        "setBeforeEnabling": "请在开启“要求订阅”之前设置日期。",
+        "locked": "该值已在 .env 中固定 — 请在那里修改。",
+        "setNow": "设为“现在”",
+        "manualLabel": "截止日期和时间",
+        "reset": "重置",
+        "saved": "截止日期已保存",
+        "invalid": "日期无效",
+        "future": "日期不能是将来",
+        "confirmReplace": "更改截止日期？在旧日期和新日期之间加入的用户将切换分组：日期之前 — 不检查，之后 — 检查。",
+        "confirmReset": "重置日期？开启“要求订阅”后，将检查所有用户，包括老用户。",
+        "confirmResetActive": "订阅已是必需的。重置日期后将立即检查老用户，未订阅者可能失去 VPN。确定重置？",
+        "confirmEnableWithoutDate": "未设置截止日期：检查将适用于所有人，包括老用户，未订阅者可能失去 VPN。仍要开启？"
+      },
       "perChannel": {
         "disableTrial": "退出时禁用试用",
         "disableTrialDesc": "用户退出此频道时撤销试用权限",

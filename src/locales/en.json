@@ -3097,6 +3097,25 @@
         "requiredForAll": "Required for all users",
         "requiredForAllDesc": "Apply channel subscription check to all users, including paid"
       },
+      "requiredSince": {
+        "title": "Skip existing users",
+        "desc": "Users who joined the bot before this date are not checked for the subscription and keep their VPN if they leave. New users are checked.",
+        "current": "In effect since {{date}}",
+        "notSet": "No date set — all users are checked",
+        "warnActiveWithoutDate": "The subscription is already required, and without a date the check applies to everyone, including existing users.",
+        "setBeforeEnabling": "Set the date before turning on “Require subscription”.",
+        "locked": "The value is pinned in .env — change it there.",
+        "setNow": "Set to “now”",
+        "manualLabel": "Cutoff date and time",
+        "reset": "Reset",
+        "saved": "Cutoff date saved",
+        "invalid": "Invalid date",
+        "future": "The date cannot be in the future",
+        "confirmReplace": "Change the cutoff date? Users who joined between the old and the new date will switch groups: before the date — not checked, after — checked.",
+        "confirmReset": "Reset the date? Once “Require subscription” is on, all users will be checked, including existing ones.",
+        "confirmResetActive": "The subscription is already required. After resetting the date, existing users are checked right away and unsubscribed ones may lose VPN. Reset?",
+        "confirmEnableWithoutDate": "No cutoff date is set: the check will apply to everyone, including existing users, and unsubscribed ones may lose VPN. Turn on anyway?"
+      },
       "perChannel": {
         "disableTrial": "Disable trial on leave",
         "disableTrialDesc": "Revoke trial when user leaves this channel",
