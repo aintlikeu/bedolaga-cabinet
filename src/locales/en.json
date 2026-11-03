@@ -3091,11 +3091,11 @@
       "globalSettings": {
         "title": "Channel Settings",
         "channelRequired": "Require subscription",
-        "channelRequiredDesc": "Users must subscribe to channels to use the bot",
+        "channelRequiredDesc": "Master switch. Without a subscription to every channel, the bot, cabinet and mini app block the user — regardless of the plan. When off, the other channel settings have no effect.",
         "disableTrialOnUnsub": "Disable trial on unsubscribe",
-        "disableTrialOnUnsubDesc": "Revoke trial access when user unsubscribes from any channel",
-        "requiredForAll": "Required for all users",
-        "requiredForAllDesc": "Apply channel subscription check to all users, including paid"
+        "disableTrialOnUnsubDesc": "Global permission for trial subscriptions. Off — trials are never disabled, whatever the channel says. On — the channel’s “Disable trial on leave” flag decides. Does not affect paid subscriptions.",
+        "requiredForAll": "Background check of all subscriptions",
+        "requiredForAllDesc": "The background check also scans paid subscriptions, not only trials. What gets disabled is still decided by the channel flags; with “Disable paid on leave” paid ones are scanned anyway. It is not needed to keep unsubscribed users out of the bot — “Require subscription” does that."
       },
       "requiredSince": {
         "title": "Skip existing users",
@@ -3118,9 +3118,9 @@
       },
       "perChannel": {
         "disableTrial": "Disable trial on leave",
-        "disableTrialDesc": "Revoke trial when user leaves this channel",
+        "disableTrialDesc": "Disable the trial subscription (VPN) when the user leaves this channel. Works only if the global “Disable trial on unsubscribe” is on.",
         "disablePaid": "Disable paid on leave",
-        "disablePaidDesc": "Revoke paid access when user leaves this channel"
+        "disablePaidDesc": "Disable the paid subscription (VPN) when the user leaves this channel. Depends only on “Require subscription”."
       }
     },
     "settings": {

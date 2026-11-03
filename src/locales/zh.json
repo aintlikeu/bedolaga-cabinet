@@ -2188,11 +2188,11 @@
       "globalSettings": {
         "title": "频道设置",
         "channelRequired": "要求订阅",
-        "channelRequiredDesc": "用户必须订阅频道才能使用机器人",
+        "channelRequiredDesc": "总开关。未订阅全部频道时，机器人、个人中心和小程序都会拦截用户 — 与套餐无关。关闭时，其他频道设置不起作用。",
         "disableTrialOnUnsub": "取消订阅时禁用试用",
-        "disableTrialOnUnsubDesc": "用户取消订阅任何频道时撤销试用权限",
-        "requiredForAll": "对所有用户强制",
-        "requiredForAllDesc": "对所有用户（包括付费用户）检查频道订阅"
+        "disableTrialOnUnsubDesc": "试用订阅的总许可。关闭 — 无论频道如何设置，试用都不会被禁用。开启 — 由频道的“退出时禁用试用”决定。不影响付费订阅。",
+        "requiredForAll": "后台检查全部订阅",
+        "requiredForAllDesc": "后台检查也会扫描付费订阅，而不仅是试用。禁用哪些仍由频道标志决定；开启“退出时禁用付费”时，付费订阅本来就会被检查。拦截未订阅用户使用机器人不需要此开关 — 这由“要求订阅”完成。"
       },
       "requiredSince": {
         "title": "不检查老用户",
@@ -2215,9 +2215,9 @@
       },
       "perChannel": {
         "disableTrial": "退出时禁用试用",
-        "disableTrialDesc": "用户退出此频道时撤销试用权限",
+        "disableTrialDesc": "用户退出此频道时禁用试用订阅（VPN）。仅在总开关“取消订阅时禁用试用”开启时生效。",
         "disablePaid": "退出时禁用付费",
-        "disablePaidDesc": "用户退出此频道时撤销付费权限"
+        "disablePaidDesc": "用户退出此频道时禁用付费订阅（VPN）。只取决于“要求订阅”。"
       }
     },
     "settings": {
