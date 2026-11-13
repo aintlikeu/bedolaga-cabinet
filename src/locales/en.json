@@ -6969,6 +6969,10 @@
           "title": "My subscription",
           "hint": "With an active subscription"
         },
+        "devices": {
+          "title": "My devices",
+          "hint": "With a non-trial subscription: device list and reset"
+        },
         "buy_traffic": {
           "title": "Buy traffic",
           "hint": "For a traffic-limited subscription, if top-up is on"

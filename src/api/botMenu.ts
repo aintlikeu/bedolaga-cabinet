@@ -6,6 +6,7 @@ export const BOT_MENU_ITEM_IDS = [
   'happ',
   'balance',
   'subscription',
+  'devices',
   'buy_traffic',
   'trial',
   'buy',
